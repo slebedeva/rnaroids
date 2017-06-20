@@ -1,0 +1,25 @@
+qsub -V -e Lab_For_05h_A.e -o Lab_For_05h_A.o starPass1.sh Lab_For_05h_R1_A.fastq.gz Lab_For_05h_R2_A.fastq.gz
+qsub -V -e Lab_For_05h_B.e -o Lab_For_05h_B.o starPass1.sh Lab_For_05h_R1_B.fastq.gz Lab_For_05h_R2_B.fastq.gz
+qsub -V -e Lab_For_0hr_A.e -o Lab_For_0hr_A.o starPass1.sh Lab_For_0hr_R1_A.fastq.gz Lab_For_0hr_R2_A.fastq.gz
+qsub -V -e Lab_For_0hr_B.e -o Lab_For_0hr_B.o starPass1.sh Lab_For_0hr_R1_B.fastq.gz Lab_For_0hr_R2_B.fastq.gz
+qsub -V -e Lab_For_1h_A.e -o Lab_For_1h_A.o starPass1.sh Lab_For_1h_R1_A.fastq.gz Lab_For_1h_R2_A.fastq.gz
+qsub -V -e Lab_For_1h_B.e -o Lab_For_1h_B.o starPass1.sh Lab_For_1h_R1_B.fastq.gz Lab_For_1h_R2_B.fastq.gz
+qsub -V -e Lab_For_24h_A.e -o Lab_For_24h_A.o starPass1.sh Lab_For_24h_R1_A.fastq.gz Lab_For_24h_R2_A.fastq.gz
+qsub -V -e Lab_For_24h_B.e -o Lab_For_24h_B.o starPass1.sh Lab_For_24h_R1_B.fastq.gz Lab_For_24h_R2_B.fastq.gz
+qsub -V -e Lab_For_2h_A.e -o Lab_For_2h_A.o starPass1.sh Lab_For_2h_R1_A.fastq.gz Lab_For_2h_R2_A.fastq.gz
+qsub -V -e Lab_For_2h_B.e -o Lab_For_2h_B.o starPass1.sh Lab_For_2h_R1_B.fastq.gz Lab_For_2h_R2_B.fastq.gz
+qsub -V -e Lab_For_4h_A.e -o Lab_For_4h_A.o starPass1.sh Lab_For_4h_R1_A.fastq.gz Lab_For_4h_R2_A.fastq.gz
+qsub -V -e Lab_For_4h_B.e -o Lab_For_4h_B.o starPass1.sh Lab_For_4h_R1_B.fastq.gz Lab_For_4h_R2_B.fastq.gz
+qsub -V -e Tot_For_05h_A.e -o Tot_For_05h_A.o starPass1.sh Tot_For_05h_R1_A.fastq.gz Tot_For_05h_R2_A.fastq.gz
+qsub -V -e Tot_For_05h_B.e -o Tot_For_05h_B.o starPass1.sh Tot_For_05h_R1_B.fastq.gz Tot_For_05h_R2_B.fastq.gz
+qsub -V -e Tot_For_0h_A.e -o Tot_For_0h_A.o starPass1.sh Tot_For_0h_R1_A.fastq.gz Tot_For_0h_R2_A.fastq.gz
+qsub -V -e Tot_For_0h_B.e -o Tot_For_0h_B.o starPass1.sh Tot_For_0h_R1_B.fastq.gz Tot_For_0h_R2_B.fastq.gz
+qsub -V -e Tot_For_1h_A.e -o Tot_For_1h_A.o starPass1.sh Tot_For_1h_R1_A.fastq.gz Tot_For_1h_R2_A.fastq.gz
+qsub -V -e Tot_For_1h_B.e -o Tot_For_1h_B.o starPass1.sh Tot_For_1h_R1_B.fastq.gz Tot_For_1h_R2_B.fastq.gz
+qsub -V -e Tot_For_24h_A.e -o Tot_For_24h_A.o starPass1.sh Tot_For_24h_R1_A.fastq.gz Tot_For_24h_R2_A.fastq.gz
+qsub -V -e Tot_For_24h_B.e -o Tot_For_24h_B.o starPass1.sh Tot_For_24h_R1_B.fastq.gz Tot_For_24h_R2_B.fastq.gz
+qsub -V -e Tot_For_2h_A.e -o Tot_For_2h_A.o starPass1.sh Tot_For_2h_R1_A.fastq.gz Tot_For_2h_R2_A.fastq.gz
+qsub -V -e Tot_For_2h_B.e -o Tot_For_2h_B.o starPass1.sh Tot_For_2h_R1_B.fastq.gz Tot_For_2h_R2_B.fastq.gz
+qsub -V -e Tot_For_4h_A.e -o Tot_For_4h_A.o starPass1.sh Tot_For_4h_R1_A.fastq.gz Tot_For_4h_R2_A.fastq.gz
+qsub -V -e Tot_For_4h_B.e -o Tot_For_4h_B.o starPass1.sh Tot_For_4h_R1_B.fastq.gz Tot_For_4h_R2_B.fastq.gz
+
