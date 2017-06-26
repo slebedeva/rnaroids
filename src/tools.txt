@@ -1,0 +1,10 @@
+RSEM
+STAR
+bowtie
+stringtie-1.3.0
+umi_tools
+fastx_trimmer
+/data/ohler/Neel/bioTools/tagXSstrandedData.sh #add XS tag to unspliced reads, script from Dobin
+bam2fastx
+RSeQC
+ucsc src
