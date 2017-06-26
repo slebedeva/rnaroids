@@ -1,0 +1,37 @@
+# config for RNA-Variant discovery snakemake pipeline #
+ 
+DATA: 
+  "../data"
+
+GENOME:
+  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_assembly.genome.fa"
+
+GENOME_DIR:
+  "/vol3/home/riemondy/Projects/shared_dbases/star/gencode_GRCh38/"
+
+TRANSCRIPTS:
+  "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v25.annotation.gtf"
+
+ANNOTATION_DIR:
+  "../dbases/denovo_annotation/"
+
+CHROM_SIZES:
+  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_assembly.genome.fa.fai"
+
+RRNA_FA:
+  "../dbases/hg19/rRNA/Homo_sapiens.GRCh38.rRNA.fa"
+
+ERCC_FA:
+  "../dbases/ercc/ERCC92.fa"
+  
+SAMPLE:
+    - total
+    - lab60
+
+REP:
+    - A
+    - B
+    - C
+
+# first 5p base to keep in fastqs
+5P: "3"

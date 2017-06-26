@@ -1,0 +1,55 @@
+
+""" Move UMI sequences to read ID and trim low quality bases """
+
+
+# directory shortcuts
+raw = "{data}/fastq/raw_data/"
+filtered = "{data}/fastq/filtered/"
+
+rule extract_UMI:
+    """ move UMI sequences to fastq read id 
+        UMI-tools v0.3.3 """ 
+    input: 
+      R1 = raw + "{sample}_" + READ[0] + "_{rep}.fastq.gz",
+      R2 = raw + "{sample}_" + READ[1] + "_{rep}.fastq.gz",
+    output:
+      R1 = filtered + "{sample}_" + READ[0] + "_{rep}_umi.fastq.gz",
+      R2 = filtered + "{sample}_" + READ[1] + "_{rep}_umi.fastq.gz",
+    params:
+      job_name = "umi_extract",
+      memory = "select[mem>10] rusage[mem=10]",
+    log: "{data}/fastq/logs/umi/extract_{sample}_{rep}.log"
+    message: "extracting umis"
+    shell:
+      """
+      module load python
+      umi_tools extract -I {input.R1} \
+              --read2-in={input.R2} \
+              --bc-pattern=NNNNNNNN  \
+              --bc-pattern2=NNNNNNNN \
+              --stdout={output.R1} \
+              --read2-out={output.R2} \
+              -v 0 \
+              -L {log}  
+      """
+
+rule trim_fqs:
+    """ trim bases from 5' end of reads
+        specify bases to trim in config file
+        fastx_toolkit 0.0.13 """
+    input:
+      filtered + "{sample}_{read}_{rep}_umi.fastq.gz",
+    output:
+      filtered + "{sample}_{read}_{rep}_umi_trim.fastq.gz",
+    params:
+      p5 = P5TRIM,
+      job_name = "fqtrim",
+      memory = "select[mem>4] rusage[mem=4]",
+    log: "{data}/fastq/logs/trim/trim_{sample}_{rep}.log"
+    threads: 2 #gzip launchs another thread
+    message: "trimming fastqs"
+    shell:
+      """
+      gunzip -c {input} \
+        | fastx_trimmer -z -Q33 -f {params.p5} -o {output}   
+      """

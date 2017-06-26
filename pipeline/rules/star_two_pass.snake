@@ -1,0 +1,112 @@
+
+""" rules for two pass mapping """
+
+starPARS = """ \
+  --outFilterMultimapNmax 10 --outFilterMismatchNmax 10 --outFilterMismatchNoverReadLmax 0.04 \
+  --outSAMmultNmax 1 --outMultimapperOrder Random  --outSAMprimaryFlag AllBestScore \
+  --alignIntronMin 20 --alignIntronMax 1000000 --alignMatesGapMax 1000000 \
+  --alignSJoverhangMin 8  --alignSJDBoverhangMin 1 --sjdbScore 1 \
+  --outFilterType BySJout \
+  --outSAMtype BAM SortedByCoordinate --outSAMmode Full \
+  --outSAMattributes All  --outSAMattrIHstart 0  --outSAMstrandField intronMotif  \
+  --outWigType bedGraph  --outWigNorm RPM \
+  --quantMode GeneCounts --readFilesCommand zcat \
+  """
+starPARS_dedup = """ \
+  --outFilterMultimapNmax 10 --outFilterMismatchNmax 10 --outFilterMismatchNoverReadLmax 0.04 \
+  --outSAMmultNmax 1 --outMultimapperOrder Random  --outSAMprimaryFlag AllBestScore \
+  --alignIntronMin 20 --alignIntronMax 1000000 --alignMatesGapMax 1000000 \
+  --alignSJoverhangMin 8  --alignSJDBoverhangMin 1 --sjdbScore 1 \
+  --outReadsUnmapped Fastx --outFilterType BySJout \
+  --outSAMtype BAM SortedByCoordinate --outSAMmode Full \
+  --outSAMattributes All  --outSAMattrIHstart 0  --outSAMstrandField intronMotif  \
+  """
+
+#rule idx_bams_out:
+#   input:
+#     "{data}/star/{fastq}_2pass_Aligned.sortedByCoord.out.bam"
+#   output:
+#     protected("{data}/star/{fastq}_2pass_Aligned.sortedByCoord.out.bam.bai")
+#   params:
+#     job_name = "idx_bam",
+#     memory = "select[mem>10] rusage[mem=10]",
+#   log:
+#     "{data}/star/logs/{fastq}_index.txt"
+#   shell:
+#     "samtools index {input}"
+#
+#rule star_second_pass:
+#   input:
+#     FQ1 = "{data}/raw_data/{fastq}_R1_001.fastq.gz",
+#     FQ2 = "{data}/raw_data/{fastq}_R2_001.fastq.gz",
+#     first_bam = "{data}/star/{fastq}_Aligned.sortedByCoord.out.bam",
+#     junctions = expand("{data}/star/{fastq}_SJ.out.tab",
+#       data=DATA, fastq=FASTQ)
+#   output:
+#     protected("{data}/star/{fastq}_2pass_Aligned.sortedByCoord.out.bam")
+#   params:
+#     job_name = "star_pass_2",
+#     out = "{data}/star/{fastq}_2pass_",
+#     memory = "select[mem>60] rusage[mem=60]",
+#   log:
+#     "{data}/star/logs/{fastq}_align_2.txt"
+#   message:
+#     "running second pass star alignments "
+#   threads:
+#     12
+#   shell:
+#     """
+#     module load star
+#     STAR \
+#       --genomeDir {GENOME_DIR}  \
+#       --runThreadN {threads} \
+#       --readFilesIn {input.FQ1} {input.FQ2} \
+#       --outSAMtype BAM SortedByCoordinate \
+#       --readFilesCommand gunzip -c \
+#       --outFileNamePrefix {params.out} \
+#       --sjdbFileChrStartEnd {input.junctions} \
+#       --limitSjdbInsertNsj 1250000 \
+#       --outSAMattributes NH HI AS nM MD 
+#
+#     module unload star
+#     """
+
+rule star_first_pass:
+   input:
+     #R1 = "{data}/fastq/filtered/{sample}_{rep}_umi_trim_noercc_R1.fastq.gz",
+     #R2 = "{data}/fastq/filtered/{sample}_{rep}_umi_trim_noercc_R2.fastq.gz",
+     R1 = "{data}/fastq/raw_data/{sample}_R1_{rep}.fastq.gz",
+     R2 = "{data}/fastq/raw_data/{sample}_R2_{rep}.fastq.gz",
+     genome = GENOME_DIR + "/Genome"
+   output:
+     "{data}/star/firstpass/{sample}_{rep}_SJ.out.tab",
+     bam = "{data}/star/firstpass/{sample}_{rep}_Aligned.sortedByCoord.out.bam",
+   params:
+     job_name = "star_pass_1",
+     out = "{data}/star/firstpass/{sample}_{rep}_",
+     memory = "select[mem>60] rusage[mem=60]",
+   log:
+     "{data}/star/logs/firstpass/{sample}_{rep}_align.txt"
+   message:
+     "running first pass star alignments "
+   threads:
+     12
+   shell:
+     """
+     module load star
+     STAR \
+       --genomeDir {GENOME_DIR}  \
+       --runThreadN {threads} \
+       --readFilesIn {input.R1} {input.R2} \
+       --outBAMsortingThreadN {threads} \
+       --outFileNamePrefix {params.out} \
+       --outFilterMultimapNmax 10 --outFilterMismatchNmax 10 --outFilterMismatchNoverReadLmax 0.04 \
+       --outSAMmultNmax 1 --outMultimapperOrder Random  --outSAMprimaryFlag AllBestScore \
+       --alignIntronMin 20 --alignIntronMax 1000000 --alignMatesGapMax 1000000 \
+       --alignSJoverhangMin 8  --alignSJDBoverhangMin 1 --sjdbScore 1 \
+       --outReadsUnmapped Fastx --outFilterType BySJout \
+       --outSAMtype BAM SortedByCoordinate --outSAMmode Full \
+       --outSAMattributes All  --outSAMattrIHstart 0  --outSAMstrandField intronMotif \
+       --readFilesCommand zcat
+     module unload star
+     """

@@ -1,0 +1,57 @@
+shell.executable("/bin/bash")
+shell.prefix("source ~/.bash_profile; ")
+
+""" Snakemake pipeline for RNA metabolism processing """ 
+
+configfile: "config.yaml"
+  
+DATA = config["DATA"]
+
+BIN = "../bin"
+DBASES = "../dbases"
+TRANSCRIPTS = config["TRANSCRIPTS"]
+GENOME = config["GENOME"]
+GENOME_DIR = config["GENOME_DIR"]
+
+REP = config["REP"]
+SAMPLE = config["SAMPLE"]
+P5TRIM = config["5P"]
+
+ERCC_FA = config["ERCC_FA"]
+RRNA_FA = config["RRNA_FA"]
+
+READ = ['R1', 'R2']
+
+rule all:
+  input:
+    #### general qc stats ####
+    #### extract UMIs and trim ####
+    expand("{data}/fastq/filtered/{sample}_{read}_{rep}_umi_trim.fastq.gz",
+    data=DATA, sample = SAMPLE, read = READ, rep = REP),
+
+    #### index and align data to erccs and rRNA####
+    [(DBASES + "/ercc/bowtie_idx/erccrRNA.{}.ebwt".format(x)) for x in [1, 2, 3, 4, "rev.1", "rev.2"]],
+    expand("{data}/fastq/filtered/{sample}_{rep}_umi_trim_noercc_{read}.fastq.gz",
+    data=DATA, sample = SAMPLE, read = READ, rep = REP),
+    expand("{data}/fastq/filtered/erccs/{sample}_{rep}_ercc.bam", 
+    data=DATA, sample = SAMPLE, rep = REP),
+
+    #### star first pass alignment ####
+    expand("{data}/star/firstpass/{sample}_{rep}_Aligned.sortedByCoord.out.bam",
+    data=DATA, sample = SAMPLE, rep = REP)
+
+
+include: "rules/umi_extract_trim.snake"
+include: "rules/rRNA_ercc_removal.snake"
+include: "rules/star_idx.snake"
+include: "rules/star_two_pass.snake"
+    
+    #### index and align data with two pass star mapping ####
+    #GENOME_DIR + "/Genome",
+    #expand("{data}/star/{fastq}_2pass_Aligned.sortedByCoord.out.bam",
+    #data=DATA, fastq=FASTQ),
+    #expand("{data}/star/{fastq}_2pass_Aligned.sortedByCoord.out.bam.bai",
+    #data=DATA, fastq=FASTQ),
+    #expand("{data}/star/{fastq}_split.bam",
+    #data=DATA, fastq=FASTQ),
+

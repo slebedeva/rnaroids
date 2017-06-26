@@ -1,0 +1,79 @@
+
+""" remove rRNA and ERCC sequences from fastqs """ 
+
+# directory shortcuts
+filtered = "{data}/fastq/filtered/"
+
+# bowtie indexes
+idx_nums = [1, 2, 3, 4, "rev.1", "rev.2"]
+bt_idx_path = DBASES + "/ercc/bowtie_idx/erccrRNA"
+bt_idxs = [(bt_idx_path + ".{}.ebwt".format(x)) for x in idx_nums]
+
+rule bowtie_ercc_rRNA:
+    """ align fastqs to rRNA and ERCC data
+        file renaming performed because bowtie adds _1 and _2 to output
+        bowtie 0.12.9 """ 
+    input: 
+      R1 = filtered + "{sample}_R1_{rep}_umi_trim.fastq.gz",
+      R2 = filtered + "{sample}_R2_{rep}_umi_trim.fastq.gz",
+      idx = bt_idxs
+    output:
+      R1 = filtered + "{sample}_{rep}_umi_trim_noercc_R1.fastq.gz",
+      R2 = filtered + "{sample}_{rep}_umi_trim_noercc_R2.fastq.gz",
+      bam = filtered + "erccs/{sample}_{rep}_ercc.bam" 
+    params:
+      idx_path = bt_idx_path,
+      bam_suffix = filtered + "erccs/{sample}_{rep}_ercc",
+      fq_suffix = filtered + "{sample}_{rep}_umi_trim_noercc.fastq",
+      job_name = "erccs",
+      memory = "select[mem>10] rusage[mem=10]",
+    log: "{data}/fastq/logs/ercc/align_{sample}_{rep}.log"
+    message: "aligning to rRNA"
+    threads: 12
+    shell:
+      """
+        module load bowtie
+        bowtie -p {threads} -q -X 1000 \
+        --fr --best \
+        --un  {params.fq_suffix} \
+        {params.idx_path} \
+        -1 <(gunzip -c {input.R1}) \
+        -2 <(gunzip -c {input.R2}) \
+        --sam \
+        | samtools view -bhSF4 - \
+        | samtools sort - -o {output.bam} 
+        
+        samtools index {output.bam} 
+        
+        fq_suffix={params.fq_suffix}
+        gzip ${{fq_suffix/.fastq/_1.fastq}} #pass gzip output without .gz
+        gzip ${{fq_suffix/.fastq/_2.fastq}}
+
+        mv ${{fq_suffix/.fastq/_1.fastq.gz}} {output.R1} #rename to keep R1 and R2 convention, rather than _1 and _2
+        mv ${{fq_suffix/.fastq/_2.fastq.gz}} {output.R2} 
+      """
+
+rule ercc_rRNA_idx:
+    """ build index of ercc's and rRNA
+    concatenated
+    bowtie 0.12.9
+    """
+    input:
+      rrna = RRNA_FA, 
+      ercc = ERCC_FA
+    output:
+      bt_idxs
+    params:
+      outdir = DBASES + "/ercc/bowtie_idx/erccrRNA", 
+      job_name = "bowtieidx",
+      memory = "select[mem>4] rusage[mem=4]",
+    log: 
+      DBASES + "/ercc/logs/idx.log" 
+    message: "indexing ercc's and rRNA"
+    shell:
+      """
+      module load bowtie
+      cat {input.rrna} {input.ercc} > {input.ercc}_tmp.fa
+      bowtie-build {input.ercc}_tmp.fa {params.outdir}
+      rm {input.ercc}_tmp.fa
+      """
