@@ -6,9 +6,8 @@ shell.prefix("source ~/.bash_profile; ")
 configfile: "config.yaml"
   
 DATA = config["DATA"]
-
-BIN = "../bin"
-DBASES = "../dbases"
+SRC = config["SRC"]
+DBASES = config["DBASES"]
 TRANSCRIPTS = config["TRANSCRIPTS"]
 GENOME = config["GENOME"]
 GENOME_DIR = config["GENOME_DIR"]
@@ -31,14 +30,21 @@ rule all:
 
     #### index and align data to erccs and rRNA####
     [(DBASES + "/ercc/bowtie_idx/erccrRNA.{}.ebwt".format(x)) for x in [1, 2, 3, 4, "rev.1", "rev.2"]],
-    expand("{data}/fastq/filtered/{sample}_{rep}_umi_trim_noercc_{read}.fastq.gz",
+    expand("{data}/fastq/filtered/{sample}_{read}_{rep}_umi_trim_noercc.fastq.gz",
     data=DATA, sample = SAMPLE, read = READ, rep = REP),
     expand("{data}/fastq/filtered/erccs/{sample}_{rep}_ercc.bam", 
     data=DATA, sample = SAMPLE, rep = REP),
 
-    #### star first pass alignment ####
-    expand("{data}/star/firstpass/{sample}_{rep}_Aligned.sortedByCoord.out.bam",
-    data=DATA, sample = SAMPLE, rep = REP)
+    #### star two-pass alignments ####
+    expand("{data}/star/firstpass/{sample}_{rep}.bam",
+    data=DATA, sample = SAMPLE, rep = REP),
+    expand("{data}/star/dedup/dedup_{sample}_{rep}.bam",
+    data=DATA, sample = SAMPLE, rep = REP),
+    expand("{data}/fastq/dedup/{sample}_{rep}_{read}.fastq.gz",
+    data=DATA, sample = SAMPLE, rep = REP, read = ["R1", "R2",
+    "singletons"]),
+    expand("{data}/star/secondpass/{sample}_{rep}_2pass.bam",
+    data=DATA, sample = SAMPLE, rep = REP),
 
 
 include: "rules/umi_extract_trim.snake"
@@ -46,12 +52,3 @@ include: "rules/rRNA_ercc_removal.snake"
 include: "rules/star_idx.snake"
 include: "rules/star_two_pass.snake"
     
-    #### index and align data with two pass star mapping ####
-    #GENOME_DIR + "/Genome",
-    #expand("{data}/star/{fastq}_2pass_Aligned.sortedByCoord.out.bam",
-    #data=DATA, fastq=FASTQ),
-    #expand("{data}/star/{fastq}_2pass_Aligned.sortedByCoord.out.bam.bai",
-    #data=DATA, fastq=FASTQ),
-    #expand("{data}/star/{fastq}_split.bam",
-    #data=DATA, fastq=FASTQ),
-

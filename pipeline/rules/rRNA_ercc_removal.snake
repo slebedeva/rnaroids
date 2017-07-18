@@ -18,8 +18,8 @@ rule bowtie_ercc_rRNA:
       R2 = filtered + "{sample}_R2_{rep}_umi_trim.fastq.gz",
       idx = bt_idxs
     output:
-      R1 = filtered + "{sample}_{rep}_umi_trim_noercc_R1.fastq.gz",
-      R2 = filtered + "{sample}_{rep}_umi_trim_noercc_R2.fastq.gz",
+      R1 = filtered + "{sample}_R1_{rep}_umi_trim_noercc.fastq.gz",
+      R2 = filtered + "{sample}_R2_{rep}_umi_trim_noercc.fastq.gz",
       bam = filtered + "erccs/{sample}_{rep}_ercc.bam" 
     params:
       idx_path = bt_idx_path,

@@ -1,7 +1,16 @@
 # config for RNA-Variant discovery snakemake pipeline #
  
+# directory for data
 DATA: 
   "../data"
+
+# directory for auxillary scripts
+SRC: 
+  "../src" 
+
+# directory for databases
+DBASES: 
+  "../dbases" 
 
 GENOME:
   "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_assembly.genome.fa"
@@ -11,9 +20,6 @@ GENOME_DIR:
 
 TRANSCRIPTS:
   "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v25.annotation.gtf"
-
-ANNOTATION_DIR:
-  "../dbases/denovo_annotation/"
 
 CHROM_SIZES:
   "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_assembly.genome.fa.fai"
