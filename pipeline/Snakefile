@@ -1,19 +1,19 @@
 shell.executable("/bin/bash")
 shell.prefix("source ~/.bash_profile; ")
+from os import path
 
 """ Snakemake pipeline for RNA metabolism processing """ 
 
-configfile: "config.yaml"
+configfile: "config_rnaseq.yaml"
   
 DATA = config["DATA"]
 SRC = config["SRC"]
 DBASES = config["DBASES"]
+METADATA = config["METADATA"]
 TRANSCRIPTS = config["TRANSCRIPTS"]
 GENOME = config["GENOME"]
 GENOME_DIR = config["GENOME_DIR"]
 
-REP = config["REP"]
-SAMPLE = config["SAMPLE"]
 P5TRIM = config["5P"]
 
 ERCC_FA = config["ERCC_FA"]
@@ -21,30 +21,33 @@ RRNA_FA = config["RRNA_FA"]
 
 READ = ['R1', 'R2']
 
+SAMPLE, READ_ID = glob_wildcards(path.join(DATA, "fastq",
+                    "raw_data","{fq}_R{read}.fastq.gz"))
+print(SAMPLE)
 rule all:
   input:
     #### general qc stats ####
     #### extract UMIs and trim ####
-    expand("{data}/fastq/filtered/{sample}_{read}_{rep}_umi_trim.fastq.gz",
-    data=DATA, sample = SAMPLE, read = READ, rep = REP),
+    expand("{data}/fastq/filtered/{sample}_{read}_umi_trim.fastq.gz",
+    data=DATA, sample = SAMPLE, read = READ),
 
     #### index and align data to erccs and rRNA####
     [(DBASES + "/ercc/bowtie_idx/erccrRNA.{}.ebwt".format(x)) for x in [1, 2, 3, 4, "rev.1", "rev.2"]],
-    expand("{data}/fastq/filtered/{sample}_{read}_{rep}_umi_trim_noercc.fastq.gz",
-    data=DATA, sample = SAMPLE, read = READ, rep = REP),
-    expand("{data}/fastq/filtered/erccs/{sample}_{rep}_ercc.bam", 
-    data=DATA, sample = SAMPLE, rep = REP),
+    expand("{data}/fastq/filtered/{sample}_{read}_umi_trim_noercc.fastq.gz",
+    data=DATA, sample = SAMPLE, read = READ),
+    expand("{data}/fastq/filtered/erccs/{sample}_ercc.bam", 
+    data=DATA, sample = SAMPLE),
 
     #### star two-pass alignments ####
-    expand("{data}/star/firstpass/{sample}_{rep}.bam",
-    data=DATA, sample = SAMPLE, rep = REP),
-    expand("{data}/star/dedup/dedup_{sample}_{rep}.bam",
-    data=DATA, sample = SAMPLE, rep = REP),
-    expand("{data}/fastq/dedup/{sample}_{rep}_{read}.fastq.gz",
-    data=DATA, sample = SAMPLE, rep = REP, read = ["R1", "R2",
+    expand("{data}/star/firstpass/{sample}.bam",
+    data=DATA, sample = SAMPLE),
+    expand("{data}/star/dedup/dedup_{sample}.bam",
+    data=DATA, sample = SAMPLE),
+    expand("{data}/fastq/dedup/{sample}_{read}.fastq.gz",
+    data=DATA, sample = SAMPLE, read = ["R1", "R2",
     "singletons"]),
-    expand("{data}/star/secondpass/{sample}_{rep}_2pass.bam",
-    data=DATA, sample = SAMPLE, rep = REP),
+    expand("{data}/star/secondpass/{sample}_2pass.bam",
+    data=DATA, sample = SAMPLE),
 
 
 include: "rules/umi_extract_trim.snake"

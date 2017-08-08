@@ -10,15 +10,15 @@ rule extract_UMI:
     """ move UMI sequences to fastq read id 
         UMI-tools v0.3.3 """ 
     input: 
-      R1 = raw + "{sample}_" + READ[0] + "_{rep}.fastq.gz",
-      R2 = raw + "{sample}_" + READ[1] + "_{rep}.fastq.gz",
+      R1 = raw + "{sample}_" + READ[0] + ".fastq.gz",
+      R2 = raw + "{sample}_" + READ[1] + ".fastq.gz",
     output:
-      R1 = filtered + "{sample}_" + READ[0] + "_{rep}_umi.fastq.gz",
-      R2 = filtered + "{sample}_" + READ[1] + "_{rep}_umi.fastq.gz",
+      R1 = temp(filtered + "{sample}_" + READ[0] + "_umi.fastq.gz"),
+      R2 = temp(filtered + "{sample}_" + READ[1] + "_umi.fastq.gz"),
     params:
       job_name = "umi_extract",
       memory = "select[mem>10] rusage[mem=10]",
-    log: "{data}/fastq/logs/umi/extract_{sample}_{rep}.log"
+    log: "{data}/fastq/logs/umi/extract_{sample}.log"
     message: "extracting umis"
     shell:
       """
@@ -38,14 +38,14 @@ rule trim_fqs:
         specify bases to trim in config file
         fastx_toolkit 0.0.13 """
     input:
-      filtered + "{sample}_{read}_{rep}_umi.fastq.gz",
+      filtered + "{sample}_{read}_umi.fastq.gz",
     output:
-      filtered + "{sample}_{read}_{rep}_umi_trim.fastq.gz",
+      temp(filtered + "{sample}_{read}_umi_trim.fastq.gz"),
     params:
       p5 = P5TRIM,
       job_name = "fqtrim",
       memory = "select[mem>4] rusage[mem=4]",
-    log: "{data}/fastq/logs/trim/trim_{sample}_{rep}.log"
+    log: "{data}/fastq/logs/trim/trim_{sample}.log"
     threads: 2 #gzip launchs another thread
     message: "trimming fastqs"
     shell:

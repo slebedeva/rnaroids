@@ -38,20 +38,20 @@ starPARS_dedup = """ \
 #
 rule star_second_pass:
    input:
-     R1 = "{data}/fastq/dedup/{sample}_{rep}_R1.fastq.gz",
-     R2 = "{data}/fastq/dedup/{sample}_{rep}_R2.fastq.gz",
-     junctions = expand("{data}/star/firstpass/{sample}_{rep}_SJ.out.tab",
-       data=DATA, sample=SAMPLE, rep=REP),
-     first_bam = "{data}/star/firstpass/{sample}_{rep}.bam",
+     R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
+     R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
+     junctions = expand("{data}/star/firstpass/{sample}_SJ.out.tab",
+       data=DATA, sample=SAMPLE),
+     first_bam = "{data}/star/firstpass/{sample}.bam",
    output:
-     bam = protected("{data}/star/secondpass/{sample}_{rep}_2pass.bam")
+     bam = protected("{data}/star/secondpass/{sample}_2pass.bam")
    params:
      job_name = "star_pass_2",
-     tmpbam = "{data}/star/secondpass/{sample}_{rep}_2pass_Aligned.sortedByCoord.out.bam",
-     out = "{data}/star/secondpass/{sample}_{rep}_2pass_",
+     tmpbam = "{data}/star/secondpass/{sample}_2pass_Aligned.sortedByCoord.out.bam",
+     out = "{data}/star/secondpass/{sample}_2pass_",
      memory = "select[mem>60] rusage[mem=60]",
    log:
-     "{data}/star/logs/secondpass/{sample}_{rep}_align.txt"
+     "{data}/star/logs/secondpass/{sample}_align.txt"
    message:
      "running second pass star alignments "
    threads:
@@ -94,17 +94,17 @@ rule extract_deduped_fastqs:
     samtools 1.5
     """
     input:
-      bam = "{data}/star/dedup/dedup_{sample}_{rep}.bam",
+      bam = "{data}/star/dedup/dedup_{sample}.bam",
     output:
-      R1 = "{data}/fastq/dedup/{sample}_{rep}_R1.fastq.gz",
-      R2 = "{data}/fastq/dedup/{sample}_{rep}_R2.fastq.gz",
-      singles = "{data}/fastq/dedup/{sample}_{rep}_singletons.fastq.gz",
+      R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
+      R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
+      singles = "{data}/fastq/dedup/{sample}_singletons.fastq.gz",
     params:
-      fq = "{data}/fastq/dedup/{sample}_{rep}.fastq",
-      job_name = "makefq.{sample}.{rep}",
+      fq = "{data}/fastq/dedup/{sample}.fastq",
+      job_name = "makefq.{sample}",
       memory = "select[mem>4] rusage[mem=4]",
     log:
-      "{data}/fastq/logs/dedup/{sample}_{rep}_makefastq.txt"
+      "{data}/fastq/logs/dedup/{sample}_makefastq.txt"
     message:
       "converting deduplicated bam back to fastq"
     threads: 4  
@@ -124,17 +124,17 @@ rule dedup_bam:
     umi_tools
     """
     input:
-      bam = "{data}/star/firstpass/{sample}_{rep}.bam",
+      bam = "{data}/star/firstpass/{sample}.bam",
     output:
-      bam = "{data}/star/dedup/dedup_{sample}_{rep}.bam",
+      bam = temp("{data}/star/dedup/dedup_{sample}.bam"),
     params:
-      bam = "{data}/star/dedup/unsorted_dedup_{sample}_{rep}.bam",
-      job_name = "dedup.{sample}.{rep}",
+      bam = "{data}/star/dedup/unsorted_dedup_{sample}.bam",
+      job_name = "dedup.{sample}",
       memory = "select[mem>12] rusage[mem=12]",
     log:
-      "{data}/star/logs/dedup/{sample}_{rep}_dedup.txt"
+      "{data}/star/logs/dedup/{sample}_dedup.txt"
     message:
-      "deduplicating {wildcards.sample} replicate {wildcards.rep} bam file"
+      "deduplicating {wildcards.sample} bam file"
     shell:
       """
       module load python #needed for load umi_tools 
@@ -162,19 +162,19 @@ rule star_first_pass:
     STAR_2.5.1b
     """
     input:
-      R1 = "{data}/fastq/filtered/{sample}_R1_{rep}_umi_trim_noercc.fastq.gz",
-      R2 = "{data}/fastq/filtered/{sample}_R2_{rep}_umi_trim_noercc.fastq.gz",
+      R1 = "{data}/fastq/filtered/{sample}_R1_umi_trim_noercc.fastq.gz",
+      R2 = "{data}/fastq/filtered/{sample}_R2_umi_trim_noercc.fastq.gz",
       genome = GENOME_DIR + "/Genome"
     output:
-      "{data}/star/firstpass/{sample}_{rep}_SJ.out.tab",
-      bam = "{data}/star/firstpass/{sample}_{rep}.bam",
+      "{data}/star/firstpass/{sample}_SJ.out.tab",
+      bam = temp("{data}/star/firstpass/{sample}.bam"),
     params:
       job_name = "star_pass_1",
-      tmpbam = "{data}/star/firstpass/{sample}_{rep}_Aligned.sortedByCoord.out.bam",
-      out = "{data}/star/firstpass/{sample}_{rep}_",
+      tmpbam = "{data}/star/firstpass/{sample}_Aligned.sortedByCoord.out.bam",
+      out = "{data}/star/firstpass/{sample}_",
       memory = "select[mem>60] rusage[mem=60]",
     log:
-      "{data}/star/logs/firstpass/{sample}_{rep}_align.txt"
+      "{data}/star/logs/firstpass/{sample}_align.txt"
     message:
       "running first pass star alignments "
     threads:
