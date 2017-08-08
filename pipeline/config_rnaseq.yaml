@@ -17,16 +17,16 @@ METADATA:
   "../docs/dataTransfer_reformat.txt"
 
 GENOME:
-  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_assembly.genome.fa"
+  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_chromosomes.genome.fa"
 
 GENOME_DIR:
-  "/vol3/home/riemondy/Projects/shared_dbases/star/gencode_GRCh38/"
+  "/vol3/home/riemondy/Projects/shared_dbases/star/gencode_GRCh38_primarychrs/"
 
 TRANSCRIPTS:
-  "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v25.annotation.gtf"
+  "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v26.basic.annotation.gtf"
 
 CHROM_SIZES:
-  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_assembly.genome.fa.fai"
+  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_chromosomes.genome.fa.fai"
 
 RRNA_FA:
   "../dbases/hg19/rRNA/Homo_sapiens.GRCh38.rRNA.fa"

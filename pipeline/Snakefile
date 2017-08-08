@@ -23,7 +23,6 @@ READ = ['R1', 'R2']
 
 SAMPLE, READ_ID = glob_wildcards(path.join(DATA, "fastq",
                     "raw_data","{fq}_R{read}.fastq.gz"))
-print(SAMPLE)
 rule all:
   input:
     #### general qc stats ####

@@ -142,7 +142,7 @@ rule dedup_bam:
       umi_tools dedup \
         --method="directional-adjacency" \
         --paired \
-        -v 2 \
+        -v 1 \
         -L {log} \
         -I {input.bam} \
         -S {output.bam} 
