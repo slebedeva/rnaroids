@@ -30,6 +30,7 @@ rule bowtie_ercc_rRNA:
     log: "{data}/fastq/logs/ercc/align_{sample}.log"
     message: "aligning to rRNA"
     threads: 12
+    resources: all_threads=12
     shell:
       """
         module load bowtie

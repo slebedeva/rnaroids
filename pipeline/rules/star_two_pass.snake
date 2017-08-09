@@ -1,6 +1,9 @@
 
 """ rules for two pass mapping """
 
+def str_to_int(wildcards):
+  return str(wildcards)
+
 starPARS = """ \
   --outFilterMultimapNmax 10 --outFilterMismatchNmax 10 --outFilterMismatchNoverReadLmax 0.04 \
   --outSAMmultNmax 1 --outMultimapperOrder Random  --outSAMprimaryFlag AllBestScore \
@@ -56,6 +59,7 @@ rule star_second_pass:
      "running second pass star alignments "
    threads:
      12
+   resources: all_threads=12
    shell:
      """
      module load star
@@ -107,7 +111,7 @@ rule extract_deduped_fastqs:
       "{data}/fastq/logs/dedup/{sample}_makefastq.txt"
     message:
       "converting deduplicated bam back to fastq"
-    threads: 4  
+    resources: all_threads=4
     shell:
       """
       samtools fastq \
@@ -140,6 +144,7 @@ rule combine_bams:
       memory = "select[mem>12] rusage[mem=12]",
     log:
       "{data}/star/logs/dedup/{sample}_dedup_combine.txt"
+    resources: all_threads=1
     message:
       "combining per chromosome {wildcards.sample} bam files"
     shell:
@@ -154,7 +159,7 @@ rule combine_bams:
 rule dedup_bam:
     """
     deduplicate reads
-    umi_tools
+    umi_tools version 4.4
     use python3/3.6.1
     """
     input:
@@ -166,14 +171,17 @@ rule dedup_bam:
       memory = "select[mem>12] rusage[mem=12]",
     log:
       "{data}/star/logs/dedup/{sample}_{chrom}_dedup.txt"
+    resources: all_threads=1
     message:
       "deduplicating chromosome {wildcards.chrom} from {wildcards.sample} bam file"
     shell:
       """
-      module load python #needed for load umi_tools 
-
-      umi_tools dedup \
-        --method="directional-adjacency" \
+      module load python3 #needed for load umi_tools 
+      # use updated v4.4
+      umitools="/vol1/software/modules-python/python3/3.6.1/bin/umi_tools"
+      
+      $umitools dedup \
+        --method="directional" \
         --paired \
         --chrom={wildcards.chrom} \
         -v 1 \
@@ -206,6 +214,7 @@ rule star_first_pass:
       "running first pass star alignments "
     threads:
       12
+    resources: all_threads=12 
     shell:
       """
       module load star

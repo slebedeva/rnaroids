@@ -18,6 +18,7 @@ rule extract_UMI:
     params:
       job_name = "umi_extract",
       memory = "select[mem>10] rusage[mem=10]",
+    resources: all_threads = 1
     log: "{data}/fastq/logs/umi/extract_{sample}.log"
     message: "extracting umis"
     shell:
@@ -47,6 +48,7 @@ rule trim_fqs:
       memory = "select[mem>4] rusage[mem=4]",
     log: "{data}/fastq/logs/trim/trim_{sample}.log"
     threads: 2 #gzip launchs another thread
+    resources: all_threads=2 
     message: "trimming fastqs"
     shell:
       """
