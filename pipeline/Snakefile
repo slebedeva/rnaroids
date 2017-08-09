@@ -1,6 +1,7 @@
 shell.executable("/bin/bash")
 shell.prefix("source ~/.bash_profile; ")
 from os import path
+import sys
 
 """ Snakemake pipeline for RNA metabolism processing """ 
 
@@ -13,7 +14,7 @@ METADATA = config["METADATA"]
 TRANSCRIPTS = config["TRANSCRIPTS"]
 GENOME = config["GENOME"]
 GENOME_DIR = config["GENOME_DIR"]
-
+CHROM_SIZES = config["CHROM_SIZES"]
 P5TRIM = config["5P"]
 
 ERCC_FA = config["ERCC_FA"]
@@ -23,6 +24,18 @@ READ = ['R1', 'R2']
 
 SAMPLE, READ_ID = glob_wildcards(path.join(DATA, "fastq",
                     "raw_data","{fq}_R{read}.fastq.gz"))
+
+# build list of chromosome for parallel execution over chromosomes
+CHROMS = [] 
+with open(CHROM_SIZES) as f:
+  for line in f:
+    try: 
+      chrom = line.split("\t")[0]
+    except IndexError:
+      sys.exit("{} chromsome entries are not properly formatted".format(CHROM_SIZES))
+    
+    CHROMS.append(chrom)
+
 rule all:
   input:
     #### general qc stats ####
@@ -40,6 +53,8 @@ rule all:
     #### star two-pass alignments ####
     expand("{data}/star/firstpass/{sample}.bam",
     data=DATA, sample = SAMPLE),
+    expand("{data}/star/dedup/{sample}/dedup_split_{chrom}_{sample}.bam",
+           chrom = CHROMS, data=DATA, sample = SAMPLE),
     expand("{data}/star/dedup/dedup_{sample}.bam",
     data=DATA, sample = SAMPLE),
     expand("{data}/fastq/dedup/{sample}_{read}.fastq.gz",

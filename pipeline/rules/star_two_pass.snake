@@ -118,23 +118,56 @@ rule extract_deduped_fastqs:
         {input.bam}
       """
 
+def aggregate_chrom_bams(wildcards):
+    out = expand("{data}/star/dedup/{sample}/dedup_split_{chrom}_{sample}.bam", 
+                   chrom = CHROMS, 
+                   data = wildcards.data, 
+                   sample = wildcards.sample)
+    return(out)
+
+rule combine_bams:
+    """
+    combined deduplicated chromosome bams
+    samtools cat 
+    """
+    input:
+      bam = aggregate_chrom_bams, 
+    output:
+      bam = "{data}/star/dedup/dedup_{sample}.bam", 
+      bai = "{data}/star/dedup/dedup_{sample}.bam.bai"
+    params:
+      job_name = "dedup.combine.{sample}",
+      memory = "select[mem>12] rusage[mem=12]",
+    log:
+      "{data}/star/logs/dedup/{sample}_dedup_combine.txt"
+    message:
+      "combining per chromosome {wildcards.sample} bam files"
+    shell:
+      """
+      # combine and sort by read name so pairs are together for conversion back to fastq
+      samtools cat {input.bam} \
+        | samtools sort -n -o {output.bam}
+
+      samtools index {output.bam}
+      """
+
 rule dedup_bam:
     """
     deduplicate reads
     umi_tools
+    use python3/3.6.1
     """
     input:
       bam = "{data}/star/firstpass/{sample}.bam",
     output:
-      bam = temp("{data}/star/dedup/dedup_{sample}.bam"),
+      bam = "{data}/star/dedup/{sample}/dedup_split_{chrom}_{sample}.bam", 
     params:
-      bam = "{data}/star/dedup/unsorted_dedup_{sample}.bam",
-      job_name = "dedup.{sample}",
+      job_name = "dedup_bams",
       memory = "select[mem>12] rusage[mem=12]",
     log:
-      "{data}/star/logs/dedup/{sample}_dedup.txt"
+      "{data}/star/logs/dedup/{sample}_{chrom}_dedup.txt"
     message:
-      "deduplicating {wildcards.sample} bam file"
+      "deduplicating chromosome {wildcards.chrom} from {wildcards.sample} bam file"
     shell:
       """
       module load python #needed for load umi_tools 
@@ -142,18 +175,12 @@ rule dedup_bam:
       umi_tools dedup \
         --method="directional-adjacency" \
         --paired \
+        --chrom={wildcards.chrom} \
         -v 1 \
         -L {log} \
-        -I {input.bam} \
-        -S {output.bam} 
+        -I {input} \
+        -S {output.bam}
 
-      # sort by read name so pairs are together for conversion back to fastq
-      samtools sort \
-        -n {params.bam} \
-        -o {output.bam} 
-      
-      rm -f {params.bam} 
-      
       """
 
 
