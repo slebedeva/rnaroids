@@ -25,6 +25,15 @@ GENOME_DIR:
 TRANSCRIPTS:
   "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v26.basic.annotation.gtf"
 
+TRANSCRIPTS_FA:
+  "/vol3/home/riemondy/Projects/shared_dbases/transcript_fastas/gencode.v26.transcripts.fa.gz"
+
+SALMON_IDX:
+  "/vol3/home/riemondy/Projects/shared_dbases/salmon_idx/gencode.v26.transcripts.idx"
+
+KALLISTO_IDX:
+  "/vol3/home/riemondy/Projects/shared_dbases/kallisto_idx/gencode.v26.transcripts.idx"
+
 CHROM_SIZES:
   "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_chromosomes.genome.fa.fai"
 

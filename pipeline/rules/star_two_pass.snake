@@ -25,29 +25,16 @@ starPARS_dedup = """ \
   --outSAMattributes All  --outSAMattrIHstart 0  --outSAMstrandField intronMotif  \
   """
 
-#rule idx_bams_out:
-#   input:
-#     "{data}/star/{fastq}_2pass_Aligned.sortedByCoord.out.bam"
-#   output:
-#     protected("{data}/star/{fastq}_2pass_Aligned.sortedByCoord.out.bam.bai")
-#   params:
-#     job_name = "idx_bam",
-#     memory = "select[mem>10] rusage[mem=10]",
-#   log:
-#     "{data}/star/logs/{fastq}_index.txt"
-#   shell:
-#     "samtools index {input}"
-#
-#
+
+
 rule star_second_pass:
    input:
      R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
      R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
      junctions = expand("{data}/star/firstpass/{sample}_SJ.out.tab",
        data=DATA, sample=SAMPLE),
-     first_bam = "{data}/star/firstpass/{sample}.bam",
    output:
-     bam = protected("{data}/star/secondpass/{sample}_2pass.bam")
+     bam = "{data}/star/secondpass/{sample}_2pass.bam"
    params:
      job_name = "star_pass_2",
      tmpbam = "{data}/star/secondpass/{sample}_2pass_Aligned.sortedByCoord.out.bam",
@@ -77,8 +64,10 @@ rule star_second_pass:
        --alignSJoverhangMin 8  --alignSJDBoverhangMin 1 --sjdbScore 1 \
        --outReadsUnmapped Fastx --outFilterType BySJout \
        --outSAMtype BAM SortedByCoordinate --outSAMmode Full \
-       --outSAMattributes All  --outSAMattrIHstart 0  --outSAMstrandField intronMotif  
-      
+       --limitSjdbInsertNsj=1500000 \
+       --outSAMattributes All  --outSAMattrIHstart 0  --outSAMstrandField intronMotif \
+       --outWigType bedGraph  --outWigNorm RPM 
+
      # add XS tag for non-spliced alignments using awkful script from STAR 
      samtools view -h {params.tmpbam} \
        | awk -v strType=2 -f {SRC}/tagXSstrandedData.awk \
@@ -112,6 +101,7 @@ rule extract_deduped_fastqs:
     message:
       "converting deduplicated bam back to fastq"
     resources: all_threads=4
+    threads: 4
     shell:
       """
       samtools fastq \
@@ -138,7 +128,6 @@ rule combine_bams:
       bam = aggregate_chrom_bams, 
     output:
       bam = "{data}/star/dedup/dedup_{sample}.bam", 
-      bai = "{data}/star/dedup/dedup_{sample}.bam.bai"
     params:
       job_name = "dedup.combine.{sample}",
       memory = "select[mem>12] rusage[mem=12]",
@@ -152,8 +141,6 @@ rule combine_bams:
       # combine and sort by read name so pairs are together for conversion back to fastq
       samtools cat {input.bam} \
         | samtools sort -n -o {output.bam}
-
-      samtools index {output.bam}
       """
 
 rule dedup_bam:
@@ -231,7 +218,8 @@ rule star_first_pass:
         --outReadsUnmapped Fastx --outFilterType BySJout \
         --outSAMtype BAM SortedByCoordinate --outSAMmode Full \
         --outSAMattributes All  --outSAMattrIHstart 0  --outSAMstrandField intronMotif \
-        --readFilesCommand zcat
+        --outWigType bedGraph  --outWigNorm RPM \
+        --quantMode GeneCounts --readFilesCommand zcat 
       
       # add XS tag for non-spliced alignments using awkful script from STAR 
       samtools view -h {params.tmpbam} \

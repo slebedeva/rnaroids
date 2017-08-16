@@ -15,6 +15,9 @@ TRANSCRIPTS = config["TRANSCRIPTS"]
 GENOME = config["GENOME"]
 GENOME_DIR = config["GENOME_DIR"]
 CHROM_SIZES = config["CHROM_SIZES"]
+TRANSCRIPTS_FA = config["TRANSCRIPTS_FA"]
+SALMON_IDX = config["SALMON_IDX"]
+KALLISTO_IDX = config["KALLISTO_IDX"]
 P5TRIM = config["5P"]
 
 ERCC_FA = config["ERCC_FA"]
@@ -38,21 +41,16 @@ with open(CHROM_SIZES) as f:
 
 rule all:
   input:
-    #### general qc stats ####
     #### extract UMIs and trim ####
-    expand("{data}/fastq/filtered/{sample}_{read}_umi_trim.fastq.gz",
-    data=DATA, sample = SAMPLE, read = READ),
-
-    #### index and align data to erccs and rRNA####
-    [(DBASES + "/ercc/bowtie_idx/erccrRNA.{}.ebwt".format(x)) for x in [1, 2, 3, 4, "rev.1", "rev.2"]],
     expand("{data}/fastq/filtered/{sample}_{read}_umi_trim_noercc.fastq.gz",
     data=DATA, sample = SAMPLE, read = READ),
+    
+    #### index and align data to erccs and rRNA####
     expand("{data}/fastq/filtered/erccs/{sample}_ercc.bam", 
     data=DATA, sample = SAMPLE),
+    [(DBASES + "/ercc/bowtie_idx/erccrRNA.{}.ebwt".format(x)) for x in [1, 2, 3, 4, "rev.1", "rev.2"]],
 
     #### star two-pass alignments ####
-    expand("{data}/star/firstpass/{sample}.bam",
-    data=DATA, sample = SAMPLE),
     expand("{data}/star/dedup/{sample}/dedup_split_{chrom}_{sample}.bam",
            chrom = CHROMS, data=DATA, sample = SAMPLE),
     expand("{data}/star/dedup/dedup_{sample}.bam",
@@ -63,9 +61,18 @@ rule all:
     expand("{data}/star/secondpass/{sample}_2pass.bam",
     data=DATA, sample = SAMPLE),
 
+    #### salmon alignments ####
+    expand("{data}/salmon/{sample}/quant.sf", 
+    data=DATA, sample = SAMPLE),
+    
+    #### salmon alignments ####
+    expand("{data}/kallisto/{sample}/quant.sf", 
+    data=DATA, sample = SAMPLE),
+
 
 include: "rules/umi_extract_trim.snake"
 include: "rules/rRNA_ercc_removal.snake"
 include: "rules/star_idx.snake"
 include: "rules/star_two_pass.snake"
-    
+include: "rules/salmon.snake"    
+include: "rules/kallisto.snake"    

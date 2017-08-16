@@ -1,0 +1,52 @@
+""" process fastqs for kallisto alignment """
+
+rule kallisto:
+  input:
+    idx = {KALLISTO_IDX},
+    R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
+    R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
+  output:
+    "{data}/kallisto/{sample}/quant.sf"
+  params:
+    out_dir = "{data}/kallisto/{sample}",
+    job_name = "kallisto.{sample}",
+    memory = "select[mem>12] rusage[mem=12]",
+  log:
+    "{data}/kallisto/logs/alignment/{sample}.txt" 
+  message:
+    "Fishing for kallistos in {wildcards.sample} "
+  threads:
+    12
+  resources: all_threads=12
+  shell:
+    """
+    module load kallisto
+    kallisto quant \
+      -i {input.idx} \
+      -o {params.out_dir} \
+      {input.R1} {input.R2} \
+      -b 100 --rf-stranded \
+      -t {threads}
+    module unload kallisto
+    """
+
+
+rule kallisto_idx:  
+  input:
+    {TRANSCRIPTS_FA} 
+  output:
+    {KALLISTO_IDX}
+  log:
+    path.join(KALLISTO_IDX + "logs") 
+  message:
+    "building kallisto index "
+  params:
+    job_name = 'kallisto_idx',
+    memory =  "select[mem>8] rusage[mem=8]"
+  shell:
+    """
+    module load kallisto
+    kallisto index -i {output} {input}
+    module unload kallisto
+    """
+
