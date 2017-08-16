@@ -1,0 +1,2 @@
+tagXSstrandedData.awk from STAR github repo 2017-07-17
+wget https://raw.githubusercontent.com/alexdobin/STAR/master/extras/scripts/tagXSstrandedData.awk
