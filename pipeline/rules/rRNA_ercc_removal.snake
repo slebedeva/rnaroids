@@ -60,7 +60,7 @@ rule ercc_rRNA_idx:
     bowtie 0.12.9
     """
     input:
-      rrna = RRNA_FA, 
+      rrna = RRNA_FA,
       ercc = ERCC_FA
     output:
       bt_idxs

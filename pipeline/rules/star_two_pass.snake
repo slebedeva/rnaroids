@@ -34,7 +34,9 @@ rule star_second_pass:
      junctions = expand("{data}/star/firstpass/{sample}_SJ.out.tab",
        data=DATA, sample=SAMPLE),
    output:
-     bam = "{data}/star/secondpass/{sample}_2pass.bam"
+     bam = "{data}/star/secondpass/{sample}_2pass.bam",
+     bg1 = "{data}/star/secondpass/{sample}_2pass_Signal.Unique.str1.out.bg",
+     bg2 = "{data}/star/secondpass/{sample}_2pass_Signal.Unique.str2.out.bg"
    params:
      job_name = "star_pass_2",
      tmpbam = "{data}/star/secondpass/{sample}_2pass_Aligned.sortedByCoord.out.bam",

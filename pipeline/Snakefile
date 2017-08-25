@@ -65,14 +65,13 @@ rule all:
     expand("{data}/salmon/{sample}/quant.sf", 
     data=DATA, sample = SAMPLE),
     
-    #### salmon alignments ####
-    expand("{data}/kallisto/{sample}/quant.sf", 
-    data=DATA, sample = SAMPLE),
-
+    #### bigwigs ####
+    expand("{data}/bigwigs/{sample}_{orient}.bw",
+    data=DATA, sample = SAMPLE, orient = ["fwd", "rev", "rev_neg"]),
 
 include: "rules/umi_extract_trim.snake"
 include: "rules/rRNA_ercc_removal.snake"
 include: "rules/star_idx.snake"
 include: "rules/star_two_pass.snake"
 include: "rules/salmon.snake"    
-include: "rules/kallisto.snake"    
+include: "rules/make_bigwigs.snake"

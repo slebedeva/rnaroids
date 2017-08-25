@@ -15,7 +15,7 @@ args=' -q rna -o {log}.out -e {log}.err -J {params.job_name} -R
 snakemake --drmaa "$args" \
     --snakefile Snakefile \
     --jobs 72 \
-    --resources all_threads=84 \
+    --resources all_threads=72 \
     --latency-wait 50 \
     --rerun-incomplete  \
     --configfile config_rnaseq.yaml 
