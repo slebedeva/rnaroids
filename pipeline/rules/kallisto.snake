@@ -6,7 +6,7 @@ rule kallisto:
     R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
     R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
   output:
-    "{data}/kallisto/{sample}/quant.sf"
+    "{data}/kallisto/{sample}/abundance.tsv"
   params:
     out_dir = "{data}/kallisto/{sample}",
     job_name = "kallisto.{sample}",
