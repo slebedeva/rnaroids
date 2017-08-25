@@ -1,4 +1,7 @@
 06/26/17 ncRNA fasta downloaded from ensembl
 ftp://ftp.ensembl.org/pub/release-89/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh38.ncrna.fa.gz
 
-
+08/16/2017
+Downloaded the 45srRNA repeating unit to add into the rRNA database, as it
+was missing
+https://www.ncbi.nlm.nih.gov/nuccore/NR_046235.3
