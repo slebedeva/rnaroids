@@ -54,37 +54,6 @@ rule extract_deduped_fastqs:
         {input.bam}
       """
 
-def aggregate_chrom_bams(wildcards):
-    out = expand("{data}/star/dedup/{sample}/dedup_split_{chrom}_{sample}.bam", 
-                   chrom = CHROMS, 
-                   data = wildcards.data, 
-                   sample = wildcards.sample)
-    return(out)
-
-rule combine_bams:
-    """
-    combined deduplicated chromosome bams
-    samtools cat 
-    """
-    input:
-      bam = aggregate_chrom_bams, 
-    output:
-      bam = protected("{data}/star/dedup/{sample}_dedup.bam"), 
-    params:
-      job_name = "dedup.combine.{sample}",
-      memory = "select[mem>12] rusage[mem=12]",
-    log:
-      "{data}/star/logs/dedup/{sample}_dedup_combine.txt"
-    resources: all_threads=1
-    message:
-      "combining per chromosome {wildcards.sample} bam files"
-    shell:
-      """
-      # combine and sort by read name so pairs are together for conversion back to fastq
-      samtools cat {input.bam} \
-        | samtools sort -n -o {output.bam}
-      """
-
 rule dedup_bam:
     """
     deduplicate reads
@@ -94,15 +63,15 @@ rule dedup_bam:
     input:
       bam = "{data}/star/firstpass/{sample}.bam",
     output:
-      bam = temp("{data}/star/dedup/{sample}/dedup_split_{chrom}_{sample}.bam"), 
+      bam = protected("{data}/star/dedup/{sample}_dedup.bam"), 
     params:
       job_name = "dedup_bams",
       memory = "select[mem>12] rusage[mem=12]",
     log:
-      "{data}/star/logs/dedup/{sample}_{chrom}_dedup.txt"
+      "{data}/star/logs/dedup/{sample}_dedup.txt"
     resources: all_threads=1
     message:
-      "deduplicating chromosome {wildcards.chrom} from {wildcards.sample} bam file"
+      "deduplicating {wildcards.sample} bam file"
     shell:
       """
       module load python3 #needed for load umi_tools 
@@ -111,7 +80,6 @@ rule dedup_bam:
       $umitools dedup \
         --method="directional" \
         --paired \
-        --chrom={wildcards.chrom} \
         -v 1 \
         -L {log} \
         -I {input} \

@@ -40,8 +40,8 @@ module load subread/1.4.4
 
 snakemake --drmaa "$args" \
     --snakefile Snakefile \
-    --jobs 120 \
-    --resources all_threads=120 \
+    --jobs 60 \
+    --resources all_threads=60 \
     --latency-wait 50 \
     --rerun-incomplete  \
     --configfile config_rnaseq.yaml 

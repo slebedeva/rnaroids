@@ -43,15 +43,15 @@ SAMPLE, READ_ID = glob_wildcards(path.join(DATA, "fastq",
                     "raw_data","{fq}_R{read}.fastq.gz"))
 
 # build list of chromosome for parallel execution over chromosomes
-CHROMS = [] 
-with open(CHROM_SIZES) as f:
-  for line in f:
-    try: 
-      chrom = line.split("\t")[0]
-    except IndexError:
-      sys.exit("{} chromsome entries are not properly formatted".format(CHROM_SIZES))
-    
-    CHROMS.append(chrom)
+#CHROMS = [] 
+#with open(CHROM_SIZES) as f:
+#  for line in f:
+#    try: 
+#      chrom = line.split("\t")[0]
+#    except IndexError:
+#      sys.exit("{} chromsome entries are not properly formatted".format(CHROM_SIZES))
+#    
+#    CHROMS.append(chrom)
 
 rule all:
   input:
@@ -71,8 +71,6 @@ rule all:
     [(DBASES + "/ercc/bowtie_idx/erccrRNA.{}.ebwt".format(x)) for x in [1, 2, 3, 4, "rev.1", "rev.2"]],
 
     #### star two-pass alignments ####
-    expand("{data}/star/dedup/{sample}/dedup_split_{chrom}_{sample}.bam",
-            chrom = CHROMS, data=DATA, sample = SAMPLE),
     expand("{data}/star/dedup/{sample}_dedup.bam",
             data=DATA, sample = SAMPLE),
     expand("{data}/fastq/dedup/{sample}_{read}.fastq.gz",
@@ -80,13 +78,13 @@ rule all:
     expand("{data}/star/firstpass/{sample}.bam",
             data=DATA, sample = SAMPLE),
 
-   # #### salmon alignments ####
-   # expand("{data}/salmon/{sample}/quant.sf", 
-   # data=DATA, sample = SAMPLE),
-   # 
-   # #### bigwigs ####
-   # expand("{data}/bigwigs/{sample}_{orient}.bw",
-   # data=DATA, sample = SAMPLE, orient = ["fwd", "rev", "rev_neg"]),
+    #### salmon alignments ####
+    expand("{data}/salmon/{sample}/quant.sf", 
+    data=DATA, sample = SAMPLE),
+    
+    #### bigwigs ####
+    expand("{data}/bigwigs/{sample}_{orient}.bw",
+    data=DATA, sample = SAMPLE, orient = ["fwd", "rev", "rev_neg"]),
     
     #### count erccs ####
     expand("{data}/ercc/ercc_counts.txt", data=DATA)
@@ -94,7 +92,7 @@ rule all:
 include: "rules/umi_extract_trim.snake"
 include: "rules/rRNA_ercc_removal.snake"
 include: "rules/star_idx.snake"
-include: "rules/star_two_pass.snake"
+include: "rules/star.snake"
 include: "rules/salmon.snake"    
 include: "rules/make_bigwigs.snake"
 include: "rules/qc.snake"
