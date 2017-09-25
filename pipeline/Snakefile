@@ -1,6 +1,7 @@
 shell.executable("/bin/bash")
 shell.prefix("source ~/.bash_profile; ")
 from os import path
+from glob import glob
 import sys
 
 """ Snakemake pipeline for RNA metabolism processing """ 
@@ -16,14 +17,27 @@ GENOME = config["GENOME"]
 GENOME_DIR = config["GENOME_DIR"]
 CHROM_SIZES = config["CHROM_SIZES"]
 TRANSCRIPTS_FA = config["TRANSCRIPTS_FA"]
+TRANSCRIPTS_BED = config["TRANSCRIPTS_BED"]
 SALMON_IDX = config["SALMON_IDX"]
 KALLISTO_IDX = config["KALLISTO_IDX"]
+SPLICE_JUNCTS = config["SPLICE_JUNCTS"]
 P5TRIM = config["5P"]
 
 ERCC_FA = config["ERCC_FA"]
+ERCC_GTF = config["ERCC_GTF"]
 RRNA_FA = config["RRNA_FA"]
 
 READ = ['R1', 'R2']
+
+# find all splice junction files (no error if none)
+# if no splice junctions have been generated, then run pipeline through
+# star mapping. Then rerun with the produced splice junctions
+
+SPLICE_JUNCTS = config["SPLICE_JUNCTS"]
+if SPLICE_JUNCTS: 
+  # make a string with filenames seperated by whitespace
+  SPLICE_JUNCTS = glob(SPLICE_JUNCTS)
+  SPLICE_JUNCTS = " ".join(SPLICE_JUNCTS)
 
 SAMPLE, READ_ID = glob_wildcards(path.join(DATA, "fastq",
                     "raw_data","{fq}_R{read}.fastq.gz"))
@@ -41,6 +55,12 @@ with open(CHROM_SIZES) as f:
 
 rule all:
   input:
+    #### qc ####
+    expand("{data}/qc/fastqc/{sample}_{read}_fastqc/summary.txt",
+    data=DATA, sample = SAMPLE, read = READ),
+    expand("{data}/qc/rseqc/{sample}_{reports}.txt",
+    data=DATA, sample = SAMPLE, reports = ["bam_stat", "lib_type", "read_dist"]),
+
     #### extract UMIs and trim ####
     expand("{data}/fastq/filtered/{sample}_{read}_umi_trim_noercc.fastq.gz",
     data=DATA, sample = SAMPLE, read = READ),
@@ -52,26 +72,30 @@ rule all:
 
     #### star two-pass alignments ####
     expand("{data}/star/dedup/{sample}/dedup_split_{chrom}_{sample}.bam",
-           chrom = CHROMS, data=DATA, sample = SAMPLE),
-    expand("{data}/star/dedup/dedup_{sample}.bam",
-    data=DATA, sample = SAMPLE),
+            chrom = CHROMS, data=DATA, sample = SAMPLE),
+    expand("{data}/star/dedup/{sample}_dedup.bam",
+            data=DATA, sample = SAMPLE),
     expand("{data}/fastq/dedup/{sample}_{read}.fastq.gz",
-    data=DATA, sample = SAMPLE, read = ["R1", "R2",
-    "singletons"]),
-    expand("{data}/star/secondpass/{sample}_2pass.bam",
-    data=DATA, sample = SAMPLE),
+            data=DATA, sample = SAMPLE, read = ["R1", "R2", "singletons"]),
+    expand("{data}/star/firstpass/{sample}.bam",
+            data=DATA, sample = SAMPLE),
 
-    #### salmon alignments ####
-    expand("{data}/salmon/{sample}/quant.sf", 
-    data=DATA, sample = SAMPLE),
+   # #### salmon alignments ####
+   # expand("{data}/salmon/{sample}/quant.sf", 
+   # data=DATA, sample = SAMPLE),
+   # 
+   # #### bigwigs ####
+   # expand("{data}/bigwigs/{sample}_{orient}.bw",
+   # data=DATA, sample = SAMPLE, orient = ["fwd", "rev", "rev_neg"]),
     
-    #### bigwigs ####
-    expand("{data}/bigwigs/{sample}_{orient}.bw",
-    data=DATA, sample = SAMPLE, orient = ["fwd", "rev", "rev_neg"]),
-
+    #### count erccs ####
+    expand("{data}/ercc/ercc_counts.txt", data=DATA)
+   
 include: "rules/umi_extract_trim.snake"
 include: "rules/rRNA_ercc_removal.snake"
 include: "rules/star_idx.snake"
 include: "rules/star_two_pass.snake"
 include: "rules/salmon.snake"    
 include: "rules/make_bigwigs.snake"
+include: "rules/qc.snake"
+include: "rules/ercc_dedup_and_count.snake"

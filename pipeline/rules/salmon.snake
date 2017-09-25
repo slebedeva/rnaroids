@@ -1,15 +1,10 @@
-from os import path
 """ rules for psuedo alignment via salmon """
-
-salmon="/vol3/home/riemondy/src/Salmon-0.8.2_linux_x86_64/bin/salmon"
-
 
 rule salmon_align:
   """
   perform psuedo alignment with salmon
   libtype is specified as ISR 
   """
-
   input:
     idx = {SALMON_IDX},
     R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
@@ -29,7 +24,7 @@ rule salmon_align:
   resources: all_threads=12
   shell:
     """
-    {salmon} quant \
+    salmon quant \
       -i {input.idx} \
       -l ISR \
       -1 {input.R1} \
@@ -46,7 +41,7 @@ rule salmon_idx:
   """ build an index for aligning with salmon
       note that this works with gencode annotations
       also designed for quasi mapping not SMEM-mapping
-    Salmon v0.8.2
+      Salmon v0.8.2
   """
   input:
     {TRANSCRIPTS_FA} 
@@ -64,7 +59,7 @@ rule salmon_idx:
   resources: all_threads=12
   shell:
     """
-    {salmon} index \
+    salmon index \
       -t {input} \
       -i {output} \
       --gencode \

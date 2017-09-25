@@ -5,8 +5,8 @@
 rule make_bigwigs:
   input:
     {CHROM_SIZES},
-    forward = "{data}/star/secondpass/{sample}_2pass_Signal.Unique.str2.out.bg",
-    reverse = "{data}/star/secondpass/{sample}_2pass_Signal.Unique.str1.out.bg",
+    forward = "{data}/star/firstpass/{sample}_Signal.Unique.str2.out.bg",
+    reverse = "{data}/star/firstpass/{sample}_Signal.Unique.str1.out.bg",
   output:
     fwd = "{data}/bigwigs/{sample}_fwd.bw",
     rev = "{data}/bigwigs/{sample}_rev.bw",
@@ -21,8 +21,6 @@ rule make_bigwigs:
   resources: all_threads=1
   shell:
     """
-    module load ucsc
-    
     bedSort {input.forward} {input.forward}.sort
     bedSort {input.reverse} {input.reverse}.sort
 
@@ -33,5 +31,4 @@ rule make_bigwigs:
     bedGraphToBigWig {input.reverse}.tmp {CHROM_SIZES} {output.revneg}
 
     rm {input.reverse}.tmp {input.forward}.sort {input.reverse}.sort
-    module unload ucsc
     """
