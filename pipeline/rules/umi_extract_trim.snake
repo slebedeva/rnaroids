@@ -24,14 +24,16 @@ rule extract_UMI:
     shell:
       """
       module load python
-      umi_tools extract -I {input.R1} \
-              --read2-in={input.R2} \
-              --bc-pattern=NNNNNNNN  \
-              --bc-pattern2=NNNNNNNN \
-              --stdout={output.R1} \
-              --read2-out={output.R2} \
-              -v 0 \
-              -L {log}  
+      umi_tools extract \
+        -I {input.R1} \
+        --read2-in={input.R2} \
+        --bc-pattern=NNNNNNNN  \
+        --bc-pattern2=NNNNNNNN \
+        --stdout={output.R1} \
+        --read2-out={output.R2} \
+        -v 0 \
+        -L {log}
+      module unload python
       """
 
 rule trim_fqs:

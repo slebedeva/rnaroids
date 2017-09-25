@@ -33,7 +33,6 @@ rule bowtie_ercc_rRNA:
     resources: all_threads=12
     shell:
       """
-        module load bowtie
         bowtie -p {threads} -q -X 1000 \
         --fr --best \
         --un  {params.fq_suffix} \
@@ -73,7 +72,6 @@ rule ercc_rRNA_idx:
     message: "indexing ercc's and rRNA"
     shell:
       """
-      module load bowtie
       cat {input.rrna} {input.ercc} > {input.ercc}_tmp.fa
       bowtie-build {input.ercc}_tmp.fa {params.outdir}
       rm {input.ercc}_tmp.fa

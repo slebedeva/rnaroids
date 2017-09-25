@@ -17,13 +17,18 @@ METADATA:
   "../docs/dataTransfer_reformat.txt"
 
 GENOME:
-  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_chromosomes.genome.fa"
+  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_assembly.genome.fa"
 
 GENOME_DIR:
-  "/vol3/home/riemondy/Projects/shared_dbases/star/gencode_GRCh38_primarychrs/"
+  "/vol3/home/riemondy/Projects/shared_dbases/star/gencode_GRCh38"
 
 TRANSCRIPTS:
-  "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v26.basic.annotation.gtf"
+  # from gencode 2017-09-22  
+  "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v26.primary_assembly.annotation.gtf"
+
+TRANSCRIPTS_BED:
+  # from ucsc 2017-09-22
+  "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v26.primary_assembly.annotation.bed"
 
 TRANSCRIPTS_FA:
   "/vol3/home/riemondy/Projects/shared_dbases/transcript_fastas/gencode.v26.transcripts.fa.gz"
@@ -35,14 +40,22 @@ KALLISTO_IDX:
   "/vol3/home/riemondy/Projects/shared_dbases/kallisto_idx/gencode.v26.transcripts.idx"
 
 CHROM_SIZES:
-  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_chromosomes.genome.fa.fai"
+  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_assembly.genome.fa.fai"
 
 RRNA_FA:
   "../dbases/hg19/rRNA/Homo_sapiens.GRCh38.rRNA.fa"
 
 ERCC_FA:
   "../dbases/ercc/ERCC92.fa"
-  
+
+ERCC_GTF:
+  "../dbases/ercc/ERCC92.gtf"
+
+# path to STAR SJ.out.tab file
+# Can be single file or wildcard expression matching multiple files
+SPLICE_JUNCTS:
+  "../data/star/firstpass/*_SJ.out.tab"
+
 # first 5p base to keep in fastqs
 5P: "3"
 
