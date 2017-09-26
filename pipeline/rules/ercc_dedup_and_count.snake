@@ -1,5 +1,5 @@
 
-""" remove rRNA and ERCC sequences from fastqs """ 
+""" deduplicate ERCCs and count """ 
 
 # directory shortcuts
 filtered = "{data}/fastq/filtered/"
