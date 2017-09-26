@@ -1,0 +1,90 @@
+
+""" calculate primary expression levels """ 
+
+
+rule rsem:
+    """
+    run RSEM on deduplicated fastqs 
+    RSEM-1.3.0
+    """
+    input:
+      R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
+      R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
+      idx = path.join(DBASES, "rsem", "primary_transcript_db.grp"),
+    output:
+      path.join("{data}", "rsem", "{sample}", "{sample}.isoforms.results")
+    params:
+      idx_prefix = path.join(DBASES, "rsem", "primary_transcript_db"),
+      outname = path.join("{data}", "rsem", "{sample}", "{sample}"),
+      job_name = "rsem_run",
+      memory = "select[mem>12] rusage[mem=12]",
+    log:
+      path.join("{data}", "rsem", "logs", "{sample}")
+    threads: 12
+    resources: all_threads=12
+    shell:
+      """
+      rsem-calculate-expression \
+        --strandedness reverse \
+        --no-bam-output --estimate-rspd  \
+        -p {threads} \
+        --paired-end <(gunzip -c {input.R1}) <(gunzip -c {input.R2}) \
+        {params.idx_prefix} \
+        {params.outname}
+      """
+
+
+rule rsem_index:
+    """
+    Prepare indexes for RSEM 
+    RSEM-1.3.0
+    """
+    input:
+      gtf = path.join(DBASES, "primary_transcript_db.gtf"),
+      fasta = GENOME
+    output:
+      path.join(DBASES, "rsem", "primary_transcript_db.transcripts.fa"),
+      path.join(DBASES, "rsem", "primary_transcript_db.seq"),
+      path.join(DBASES, "rsem", "primary_transcript_db.grp"),
+    params:
+      outname = path.join(DBASES, "rsem", "primary_transcript_db"),
+      job_name = "rsem_idx",
+      memory = "select[mem>4] rusage[mem=4]",
+    log:
+      path.join(DBASES, "logs", "generate_primary_transcript_index.txt")
+    threads: 12
+    resources: all_threads=12
+    shell:
+      """
+      rsem-prepare-reference \
+       --gtf {input.gtf} \
+       --bowtie \
+       -p {threads} \
+       {input.fasta} \
+       {params.outname}
+      """
+
+rule primary_transcript_gtf:
+    """
+    Append primary transcript records to GTF annotations
+    src/add_primary_transcripts.py
+    """
+    input:
+      TRANSCRIPTS_BASIC
+    output:
+      path.join(DBASES, "primary_transcript_db.gtf") 
+    params:
+      job_name = "gen_primary_txs",
+      memory = "select[mem>4] rusage[mem=4]",
+    log:
+      path.join(DBASES, "logs", "generate_primary_transcript_db.txt")
+    resources: all_threads=1
+    shell:
+      """
+      python3 {SRC}/add_primary_transcripts.py \
+        -i {input} \
+        -r "transcript" \
+        -a "transcript_id" > {output}
+      """
+
+

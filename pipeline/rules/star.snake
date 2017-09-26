@@ -46,12 +46,15 @@ rule extract_deduped_fastqs:
     threads: 4
     shell:
       """
-      samtools fastq \
-        -0 {output.singles} \
-        -1 {output.R1} \
-        -2 {output.R2} \
-        -@ 3 \
-        {input.bam}
+      samtools sort \
+          -n \
+          -@ 3 \
+          {input.bam} \
+        | samtools fastq \
+          -0 {output.singles} \
+          -1 {output.R1} \
+          -2 {output.R2} \
+          -@ 3 -  
       """
 
 rule dedup_bam:

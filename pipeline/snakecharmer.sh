@@ -4,7 +4,7 @@
 #BSUB -o logs/snakemake_%J.out
 #BSUB -e logs/snakemake_%J.err
 #BSUB -R "select[mem>4] rusage[mem=4] " 
-#BSUB -m "compute15 compute16 compute07 compute03"
+#BSUB -m "compute15 compute16"
 #BSUB -q normal
 
 set -o nounset -o pipefail -o errexit -x
@@ -28,14 +28,14 @@ module load bowtie/0.12.9
 module load samtools/1.5
 module load star/2.5.1b
 module load subread/1.4.4
+module load bowtie/0.12.9
 
 # other programs (not in modules)
 # Salmon-0.8.2
 # FASTX toolkit 0.0.13
 # umi_tools v4.4
 # umitools="/vol1/software/modules-python/python3/3.6.1/bin/umi_tools"
-
-#snakemake_py3="/vol1/software/modules-python/python3/3.4.0/bin/snakemake"
+# RSEM-1.3.0
 #### execute snakemake ####
 
 snakemake --drmaa "$args" \

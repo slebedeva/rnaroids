@@ -18,6 +18,7 @@ GENOME_DIR = config["GENOME_DIR"]
 CHROM_SIZES = config["CHROM_SIZES"]
 TRANSCRIPTS_FA = config["TRANSCRIPTS_FA"]
 TRANSCRIPTS_BED = config["TRANSCRIPTS_BED"]
+TRANSCRIPTS_BASIC = config["TRANSCRIPTS_BASIC"]
 SALMON_IDX = config["SALMON_IDX"]
 KALLISTO_IDX = config["KALLISTO_IDX"]
 SPLICE_JUNCTS = config["SPLICE_JUNCTS"]
@@ -41,17 +42,6 @@ if SPLICE_JUNCTS:
 
 SAMPLE, READ_ID = glob_wildcards(path.join(DATA, "fastq",
                     "raw_data","{fq}_R{read}.fastq.gz"))
-
-# build list of chromosome for parallel execution over chromosomes
-#CHROMS = [] 
-#with open(CHROM_SIZES) as f:
-#  for line in f:
-#    try: 
-#      chrom = line.split("\t")[0]
-#    except IndexError:
-#      sys.exit("{} chromsome entries are not properly formatted".format(CHROM_SIZES))
-#    
-#    CHROMS.append(chrom)
 
 rule all:
   input:
@@ -87,8 +77,16 @@ rule all:
     data=DATA, sample = SAMPLE, orient = ["fwd", "rev", "rev_neg"]),
     
     #### count erccs ####
-    expand("{data}/ercc/ercc_counts.txt", data=DATA)
-   
+    expand("{data}/ercc/ercc_counts.txt", data=DATA),
+    
+    #### compute primary/mature mRNA expression ####
+    path.join(DBASES, "primary_transcript_db.gtf"),
+    path.join(DBASES, "rsem", "primary_transcript_db.transcripts.fa"),
+    path.join(DBASES, "rsem", "primary_transcript_db.seq"),
+    path.join(DBASES, "rsem", "primary_transcript_db.grp"),
+    expand("{data}/rsem/{sample}/{sample}.isoforms.results",
+            data=DATA, sample = SAMPLE),
+
 include: "rules/umi_extract_trim.snake"
 include: "rules/rRNA_ercc_removal.snake"
 include: "rules/star_idx.snake"
@@ -97,3 +95,4 @@ include: "rules/salmon.snake"
 include: "rules/make_bigwigs.snake"
 include: "rules/qc.snake"
 include: "rules/ercc_dedup_and_count.snake"
+include: "rules/primary_expression.snake"

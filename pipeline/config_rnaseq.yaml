@@ -30,6 +30,11 @@ TRANSCRIPTS_BED:
   # from ucsc 2017-09-22
   "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v26.primary_assembly.annotation.bed"
 
+TRANSCRIPTS_BASIC:
+ # from gencode 2017-08-8
+ # no scaffolds only primary chromosomes
+  "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v26.basic.annotation.gtf"
+    
 TRANSCRIPTS_FA:
   "/vol3/home/riemondy/Projects/shared_dbases/transcript_fastas/gencode.v26.transcripts.fa.gz"
 
