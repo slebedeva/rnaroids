@@ -14,26 +14,24 @@ rule bowtie_ercc_rRNA:
         file renaming performed because bowtie adds _1 and _2 to output
         bowtie 0.12.9 """ 
     input: 
-      R1 = filtered + "{sample}_R1_umi_trim.fastq.gz",
-      R2 = filtered + "{sample}_R2_umi_trim.fastq.gz",
+      R1 = filtered + "{sample}_R1_{rep}_umi_trim.fastq.gz",
+      R2 = filtered + "{sample}_R2_{rep}_umi_trim.fastq.gz",
       idx = bt_idxs
     output:
-      R1 = filtered + "{sample}_R1_umi_trim_noercc.fastq.gz",
-      R2 = filtered + "{sample}_R2_umi_trim_noercc.fastq.gz",
-      bam = filtered + "erccs/{sample}_ercc.bam" 
+      R1 = filtered + "{sample}_R1_{rep}_umi_trim_noercc.fastq.gz",
+      R2 = filtered + "{sample}_R2_{rep}_umi_trim_noercc.fastq.gz",
+      bam = filtered + "erccs/{sample}_{rep}_ercc.bam" 
     params:
       idx_path = bt_idx_path,
-      bam_suffix = filtered + "erccs/{sample}_ercc",
-      fq_suffix = filtered + "{sample}_umi_trim_noercc.fastq",
+      bam_suffix = filtered + "erccs/{sample}_{rep}_ercc",
+      fq_suffix = filtered + "{sample}_{rep}_umi_trim_noercc.fastq",
       job_name = "erccs",
-      memory = "select[mem>10] rusage[mem=10]",
-    log: "{data}/fastq/logs/ercc/align_{sample}.log"
+    log: "{data}/fastq/logs/ercc/align_{sample}_{rep}.log"
     message: "aligning to rRNA"
-    threads: 12
-    resources: all_threads=12
+    threads: 4
+    resources: all_threads=4
     shell:
       """
-        module load bowtie
         bowtie -p {threads} -q -X 1000 \
         --fr --best \
         --un  {params.fq_suffix} \
@@ -73,7 +71,6 @@ rule ercc_rRNA_idx:
     message: "indexing ercc's and rRNA"
     shell:
       """
-      module load bowtie
       cat {input.rrna} {input.ercc} > {input.ercc}_tmp.fa
       bowtie-build {input.ercc}_tmp.fa {params.outdir}
       rm {input.ercc}_tmp.fa

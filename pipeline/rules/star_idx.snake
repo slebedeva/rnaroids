@@ -8,23 +8,19 @@ rule star_idx:
     "{GENOME_DIR}/Genome"
   params:
     job_name = "star_idx",
-    memory = "select[mem>65] rusage[mem=65]",
   log:
-    "{GENOME_DIR}/logs/" 
+    "{GENOME_DIR}/logs/"
+  threads:
+    4 
   message:
     "building star index "
-  threads:
-    24
   shell:
     """
-    module load star
     STAR --runMode genomeGenerate \
       --genomeDir {GENOME_DIR}  \
       --genomeFastaFiles {GENOME} \
       --runThreadN {threads} \
       --sjdbGTFfile {TRANSCRIPTS} \
-      --limitGenomeGenerateRAM 60000000000
-    module unload star
     """
 
 

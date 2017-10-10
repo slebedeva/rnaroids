@@ -1,7 +1,7 @@
 from os import path
 """ rules for psuedo alignment via salmon """
 
-salmon="/vol3/home/riemondy/src/Salmon-0.8.2_linux_x86_64/bin/salmon"
+#salmon="/vol3/home/riemondy/src/Salmon-0.8.2_linux_x86_64/bin/salmon"
 
 
 rule salmon_align:
@@ -19,7 +19,6 @@ rule salmon_align:
   params:
     outdir = "{data}/salmon/{sample}",
     job_name = "salmon_fishing.{sample}",
-    memory = "select[mem>12] rusage[mem=12]",
   log:
     "{data}/salmon/logs/alignment/{sample}.txt" 
   message:
@@ -54,7 +53,6 @@ rule salmon_idx:
     {SALMON_IDX}
   params:
     job_name = "salmon_idx",
-    memory = "select[mem>65] rusage[mem=65]",
   log:
     path.join(SALMON_IDX + "logs") 
   message:

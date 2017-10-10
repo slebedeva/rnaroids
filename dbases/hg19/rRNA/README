@@ -5,3 +5,4 @@ ftp://ftp.ensembl.org/pub/release-89/fasta/homo_sapiens/ncrna/Homo_sapiens.GRCh3
 Downloaded the 45srRNA repeating unit to add into the rRNA database, as it
 was missing
 https://www.ncbi.nlm.nih.gov/nuccore/NR_046235.3
+P.S. do not wget but go to the link and copy fasta sequence to a file 45srRNA.fa

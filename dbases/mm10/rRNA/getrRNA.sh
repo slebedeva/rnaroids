@@ -23,7 +23,7 @@ mkdir -p logs
 fa=$1
 rna=$2
 
-pre=$(fa%.fa.gz)
+pre=${fa%.fa.gz}
 
 gunzip -c $fa \
     | fasta_formatter -t \

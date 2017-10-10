@@ -1,8 +1,9 @@
 
 """ rules for two pass mapping """
 
-def str_to_int(wildcards):
-  return str(wildcards)
+##def str_to_int(wildcards):
+##  return str(wildcards)
+## this is not used anywhere in the rule?
 
 starPARS = """ \
   --outFilterMultimapNmax 10 --outFilterMismatchNmax 10 --outFilterMismatchNoverReadLmax 0.04 \
@@ -29,29 +30,27 @@ starPARS_dedup = """ \
 
 rule star_second_pass:
    input:
-     R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
-     R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
-     junctions = expand("{data}/star/firstpass/{sample}_SJ.out.tab",
-       data=DATA, sample=SAMPLE),
+     R1 = "{data}/fastq/dedup/{sample}_R1_{rep}.fastq.gz",
+     R2 = "{data}/fastq/dedup/{sample}_R2_{rep}.fastq.gz",
+     junctions = expand("{data}/star/firstpass/{sample}_{rep}_SJ.out.tab",
+       data=DATA, sample=SAMPLE, rep=REPLICATE),
    output:
-     bam = "{data}/star/secondpass/{sample}_2pass.bam",
-     bg1 = "{data}/star/secondpass/{sample}_2pass_Signal.Unique.str1.out.bg",
-     bg2 = "{data}/star/secondpass/{sample}_2pass_Signal.Unique.str2.out.bg"
+     bam = "{data}/star/secondpass/{sample}_{rep}_2pass.bam",
+     bg1 = "{data}/star/secondpass/{sample}_{rep}_2pass_Signal.Unique.str1.out.bg",
+     bg2 = "{data}/star/secondpass/{sample}_{rep}_2pass_Signal.Unique.str2.out.bg"
    params:
      job_name = "star_pass_2",
-     tmpbam = "{data}/star/secondpass/{sample}_2pass_Aligned.sortedByCoord.out.bam",
-     out = "{data}/star/secondpass/{sample}_2pass_",
-     memory = "select[mem>60] rusage[mem=60]",
+     tmpbam = "{data}/star/secondpass/{sample}_{rep}_2pass_Aligned.sortedByCoord.out.bam",
+     out = "{data}/star/secondpass/{sample}_{rep}_2pass_",
    log:
-     "{data}/star/logs/secondpass/{sample}_align.txt"
+     "{data}/star/logs/secondpass/{sample}_{rep}_align.txt"
    message:
      "running second pass star alignments "
    threads:
-     12
-   resources: all_threads=12
+     4
+   resources: all_threads=4
    shell:
      """
-     module load star
      STAR \
        --genomeDir {GENOME_DIR}  \
        --runThreadN {threads} \
@@ -78,7 +77,6 @@ rule star_second_pass:
      samtools index {output.bam}
      
      rm -f {params.tmpbam}
-     module unload star
      """
 
 
@@ -89,17 +87,16 @@ rule extract_deduped_fastqs:
     samtools 1.5
     """
     input:
-      bam = "{data}/star/dedup/dedup_{sample}.bam",
+      bam = "{data}/star/dedup/dedup_{sample}_{rep}.bam",
     output:
-      R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
-      R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
-      singles = "{data}/fastq/dedup/{sample}_singletons.fastq.gz",
+      R1 = "{data}/fastq/dedup/{sample}_R1_{rep}.fastq.gz",
+      R2 = "{data}/fastq/dedup/{sample}_R2_{rep}.fastq.gz",
+      singles = "{data}/fastq/dedup/{sample}_{rep}_singletons.fastq.gz",
     params:
-      fq = "{data}/fastq/dedup/{sample}.fastq",
-      job_name = "makefq.{sample}",
-      memory = "select[mem>4] rusage[mem=4]",
+      fq = "{data}/fastq/dedup/{sample}_{rep}.fastq",
+      job_name = "makefq.{sample}_{rep}",
     log:
-      "{data}/fastq/logs/dedup/{sample}_makefastq.txt"
+      "{data}/fastq/logs/dedup/{sample}_{rep}_makefastq.txt"
     message:
       "converting deduplicated bam back to fastq"
     resources: all_threads=4
@@ -114,36 +111,37 @@ rule extract_deduped_fastqs:
         {input.bam}
       """
 
-def aggregate_chrom_bams(wildcards):
-    out = expand("{data}/star/dedup/{sample}/dedup_split_{chrom}_{sample}.bam", 
-                   chrom = CHROMS, 
-                   data = wildcards.data, 
-                   sample = wildcards.sample)
-    return(out)
 
-rule combine_bams:
-    """
-    combined deduplicated chromosome bams
-    samtools cat 
-    """
-    input:
-      bam = aggregate_chrom_bams, 
-    output:
-      bam = "{data}/star/dedup/dedup_{sample}.bam", 
-    params:
-      job_name = "dedup.combine.{sample}",
-      memory = "select[mem>12] rusage[mem=12]",
-    log:
-      "{data}/star/logs/dedup/{sample}_dedup_combine.txt"
-    resources: all_threads=1
-    message:
-      "combining per chromosome {wildcards.sample} bam files"
-    shell:
-      """
-      # combine and sort by read name so pairs are together for conversion back to fastq
-      samtools cat {input.bam} \
-        | samtools sort -n -o {output.bam}
-      """
+#def aggregate_chrom_bams(wildcards):
+#    out = expand("{data}/star/dedup/{sample}_{rep}/dedup_split_{chrom}_{sample}_{rep}.bam", 
+#                   chrom = CHROMS, 
+#                   data = wildcards.data, 
+#                   sample = wildcards.sample,
+#                   rep = wildcards.rep)
+#    return(out)
+
+#rule combine_bams:
+#    """
+#    combined deduplicated chromosome bams
+#    samtools cat 
+#    """
+#    input:
+#      bam = aggregate_chrom_bams, 
+#    output:
+#      bam = "{data}/star/dedup/dedup_{sample}_{rep}.bam", 
+#    params:
+#      job_name = "dedup.combine.{sample}_{rep}",
+#    log:
+#      "{data}/star/logs/dedup/{sample}_{rep}_dedup_combine.txt"
+#    resources: all_threads=1
+#    message:
+#      "combining per chromosome {wildcards.sample} bam files"
+#    shell:
+#      """
+#      # combine and sort by read name so pairs are together for conversion back to fastq
+#      samtools cat {input.bam} \
+#        | samtools sort -n -o {output.bam}
+#      """
 
 rule dedup_bam:
     """
@@ -152,30 +150,25 @@ rule dedup_bam:
     use python3/3.6.1
     """
     input:
-      bam = "{data}/star/firstpass/{sample}.bam",
+      bam = "{data}/star/firstpass/{sample}_{rep}.bam",
     output:
-      bam = "{data}/star/dedup/{sample}/dedup_split_{chrom}_{sample}.bam", 
+      bam = "{data}/star/dedup/dedup_{sample}_{rep}.bam",
     params:
       job_name = "dedup_bams",
-      memory = "select[mem>12] rusage[mem=12]",
     log:
-      "{data}/star/logs/dedup/{sample}_{chrom}_dedup.txt"
-    resources: all_threads=1
-    message:
-      "deduplicating chromosome {wildcards.chrom} from {wildcards.sample} bam file"
+      "{data}/star/logs/dedup/{sample}_{rep}_dedup.txt"
+    resources: all_threads=4
     shell:
       """
-      module load python3 #needed for load umi_tools 
+      # use python3 - needed for umi_tools 
       # use updated v4.4
-      umitools="/vol1/software/modules-python/python3/3.6.1/bin/umi_tools"
       
-      $umitools dedup \
+      umi_tools dedup \
         --method="directional" \
         --paired \
-        --chrom={wildcards.chrom} \
-        -v 1 \
+        -v 0 \
         -L {log} \
-        -I {input} \
+        -I {input.bam} \
         -S {output.bam}
 
       """
@@ -186,27 +179,25 @@ rule star_first_pass:
     STAR_2.5.1b
     """
     input:
-      R1 = "{data}/fastq/filtered/{sample}_R1_umi_trim_noercc.fastq.gz",
-      R2 = "{data}/fastq/filtered/{sample}_R2_umi_trim_noercc.fastq.gz",
+      R1 = "{data}/fastq/filtered/{sample}_R1_{rep}_umi_trim_noercc.fastq.gz",
+      R2 = "{data}/fastq/filtered/{sample}_R2_{rep}_umi_trim_noercc.fastq.gz",
       genome = GENOME_DIR + "/Genome"
     output:
-      "{data}/star/firstpass/{sample}_SJ.out.tab",
-      bam = temp("{data}/star/firstpass/{sample}.bam"),
+      "{data}/star/firstpass/{sample}_{rep}_SJ.out.tab",
+      bam = temp("{data}/star/firstpass/{sample}_{rep}.bam"),
     params:
       job_name = "star_pass_1",
-      tmpbam = "{data}/star/firstpass/{sample}_Aligned.sortedByCoord.out.bam",
-      out = "{data}/star/firstpass/{sample}_",
-      memory = "select[mem>60] rusage[mem=60]",
+      tmpbam = "{data}/star/firstpass/{sample}_{rep}_Aligned.sortedByCoord.out.bam",
+      out = "{data}/star/firstpass/{sample}_{rep}_",
     log:
-      "{data}/star/logs/firstpass/{sample}_align.txt"
+      "{data}/star/logs/firstpass/{sample}_{rep}_align.txt"
     message:
       "running first pass star alignments "
     threads:
-      12
-    resources: all_threads=12 
+      4
+    resources: all_threads=4
     shell:
       """
-      module load star
       STAR \
         --genomeDir {GENOME_DIR}  \
         --runThreadN {threads} \
@@ -231,5 +222,4 @@ rule star_first_pass:
       samtools index {output.bam}
       
       rm -f {params.tmpbam}
-      module unload star
       """

@@ -3,31 +3,28 @@
 rule kallisto:
   input:
     idx = {KALLISTO_IDX},
-    R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
-    R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
+    R1 = "{data}/fastq/dedup/{sample}_R1_{rep}.fastq.gz",
+    R2 = "{data}/fastq/dedup/{sample}_R2_{rep}.fastq.gz",
   output:
-    "{data}/kallisto/{sample}/abundance.tsv"
+    "{data}/kallisto/{sample}_{rep}/abundance.tsv"
   params:
-    out_dir = "{data}/kallisto/{sample}",
-    job_name = "kallisto.{sample}",
-    memory = "select[mem>12] rusage[mem=12]",
+    out_dir = "{data}/kallisto/{sample}_{rep}",
+    job_name = "kallisto.{sample}_{rep}",
   log:
-    "{data}/kallisto/logs/alignment/{sample}.txt" 
+    "{data}/kallisto/logs/alignment/{sample}_{rep}.txt" 
   message:
     "Fishing for kallistos in {wildcards.sample} "
   threads:
-    12
-  resources: all_threads=12
+    4
+  resources: all_threads=4
   shell:
     """
-    module load kallisto
     kallisto quant \
       -i {input.idx} \
       -o {params.out_dir} \
       {input.R1} {input.R2} \
       -b 100 --rf-stranded \
       -t {threads}
-    module unload kallisto
     """
 
 
@@ -42,11 +39,8 @@ rule kallisto_idx:
     "building kallisto index "
   params:
     job_name = 'kallisto_idx',
-    memory =  "select[mem>8] rusage[mem=8]"
   shell:
     """
-    module load kallisto
     kallisto index -i {output} {input}
-    module unload kallisto
     """
 

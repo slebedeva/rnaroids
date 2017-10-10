@@ -1,48 +1,83 @@
-# config for RNA-Variant discovery snakemake pipeline #
+## config for RNA-Variant discovery snakemake pipeline #
  
-# directory for data
+## directory for data
 DATA: 
-  "../data"
+  #"../data"
+  "../data_es"
 
-# directory for auxillary scripts
+## directory for auxillary scripts
 SRC: 
   "../src" 
 
-# directory for databases
+## directory for databases
 DBASES: 
   "../dbases" 
 
-# tsv flat text file with metadata information
-METADATA:
-  "../docs/dataTransfer_reformat.txt"
-
 GENOME:
-  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_chromosomes.genome.fa"
+  #"/fast/AG_ohler/svetlana/mouse_lncRNA_project/STAR_index/genM14_withERCC.fa"
+  #"../genomes/GRCh38.primary_assembly.genome.fa"
+  # "/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lorenzo_index/gencM15_ERCC.fa"
+  "/fast/AG_Ohler/Lorenzo/Annotation_Indexes/gencM15_ERCC.fa"
 
 GENOME_DIR:
-  "/vol3/home/riemondy/Projects/shared_dbases/star/gencode_GRCh38_primarychrs/"
+  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/STAR_index/genM14_withERCC/STAR_2.5.3a/nt65/"
+  #"../genomes/STAR_index/" #for testing
+  "/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lore_index/STAR_genM15_ERCC"
 
 TRANSCRIPTS:
-  "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v26.basic.annotation.gtf"
-
-TRANSCRIPTS_FA:
-  "/vol3/home/riemondy/Projects/shared_dbases/transcript_fastas/gencode.v26.transcripts.fa.gz"
-
-SALMON_IDX:
-  "/vol3/home/riemondy/Projects/shared_dbases/salmon_idx/gencode.v26.transcripts.idx"
-
-KALLISTO_IDX:
-  "/vol3/home/riemondy/Projects/shared_dbases/kallisto_idx/gencode.v26.transcripts.idx"
+  "/fast/AG_Ohler/Lorenzo/Annotation_Indexes/gencM15_ERCC.gtf"
+  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lorenzo_index/gencM15_ERCC.gtf"
+  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/STAR_index/genM14_withERCC.gtf"
+  #"../genomes/gencode.v27.basic.annotation.gtf"
 
 CHROM_SIZES:
-  "/vol3/home/riemondy/Projects/shared_dbases/genomes/GRCh38.primary_chromosomes.genome.fa.fai"
+  "/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lore_index/gencM15_ERCC.fa.fai"
+  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/STAR_index/genM14_withERCC.fa.fai"
+  #"../genomes/GRCh38.primary_assembly.genome.fa.fai" #use samtools faidx genome.fa to generate
 
 RRNA_FA:
-  "../dbases/hg19/rRNA/Homo_sapiens.GRCh38.rRNA.fa"
-
+  #"../dbases/hg19/rRNA/Homo_sapiens.GRCh38.rRNA.fa"
+  "../dbases/mm10/rRNA/Mus_musculus.GRCm38.ncrna.rRNA.fa" 
+   
 ERCC_FA:
   "../dbases/ercc/ERCC92.fa"
   
-# first 5p base to keep in fastqs
-5P: "3"
+#SAMPLE:
+   # - total
+   # - lab60
+   # - Total
+   # - eb4su0h
+   # - Chr
+   # - Nuc
+   # - Cyt
+
+#REPLICATE:
+   # - A
+   # - B
+   # - C
+
+## first 5p base to keep in fastqs
+#5P: "3"
+5P: "10"
+
+
+##threads
+
+THR: "4"
+
+
+## salmon and kallisto 
+
+TRANSCRIPTS_FA:
+  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/STAR_index/gen_M14_withERCC.transcripts.fa"
+  #"../genomes/gencode.v27.transcripts.fa"
+  "/fast/AG_Ohler/svetlana/mouse_lncRNA_project/kallisto/gencode.vM15.preMRNA.fa"
+
+
+#SALMON_IDX:
+  #"../genomes/salmon_idx/gencode.v27.transcripts.idx"
+
+KALLISTO_IDX:
+  #"../genomes/kallisto_idx/gencode.v27.transcripts.idx"
+  "/fast/AG_Ohler/svetlana/mouse_lncRNA_project/kallisto/gencode.vM15.preMRNA.kall.idx"
 
