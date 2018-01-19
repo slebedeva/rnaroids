@@ -1,0 +1,20 @@
+rule trim_fqs:
+    """ trim bases from 5' end of reads
+        specify bases to trim in config file
+        fastx_toolkit 0.0.13 """
+    input:
+      filtered + "{sample}_{read}_{rep}_umi.fastq.gz",
+    output:
+      filtered + "{sample}_{read}_{rep}_umi_trim.fastq.gz",
+    params:
+      p5 = P5TRIM,
+      job_name = "fqtrim",
+    log: "{data}/fastq/logs/trim/trim_{sample}_{rep}.log"
+    threads: 2 #gzip launchs another thread
+    resources: all_threads=2
+    message: "trimming fastqs"
+    shell:
+      """
+      gunzip -c {input} \
+        | fastx_trimmer -z -Q33 -f {params.p5} -o {output}
+      """

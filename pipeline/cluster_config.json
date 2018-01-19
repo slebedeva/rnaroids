@@ -1,0 +1,73 @@
+{
+    "__default__" :
+    {
+	"mem_free" : "20G",
+        "mem_max" : "30G",
+        "time" : "12:0:0",
+	"err" : "logs/{rule}.log",
+	"account" : "svetlana.lebedeva@mdc-berlin.de",
+        "n" : 4,
+	"name" : "{rule}"
+    },
+
+    "kallisto" :
+    {
+
+    },
+    "kallisto_idx" :
+    {
+
+    },
+    "make_bigwigs" :
+    {
+
+    },
+    "bowtie_ercc_rRNA" :
+    {
+
+    },
+    "ercc_rRNA_idx" :
+    {
+
+    },
+    "salmon_align" :
+    {
+
+    },
+    "salmon_idx" :
+    {
+
+    },
+    "star_idx" :
+    {
+
+    },
+    "star_second_pass" :
+    {
+
+    },
+    "extract_deduped_fastqs" :
+    {
+
+    },
+    "combine_bams" :
+    {
+
+    },
+    "dedup_bam" :
+    {
+
+    },
+    "star_first_pass" :
+    {
+
+    },
+    "extract_UMI" :
+    {
+
+    },
+    "trim_fqs" :
+    {
+
+    }
+}

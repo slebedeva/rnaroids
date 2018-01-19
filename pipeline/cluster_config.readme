@@ -1,0 +1,23 @@
+# How to make a single cluster config file to run for snakemake
+
+# example config.json:
+
+{
+    "__default__" :
+    {
+        "account" : "my account",
+        "time" : "00:15:00",
+        "n" : 1,
+        "partition" : "core"
+    },
+    "compute1" :
+    {
+        "time" : "00:20:00"
+    }
+}
+
+
+
+#example submit command:
+
+snakemake -j 999 --cluster-config cluster.json --cluster "sbatch -A {cluster.account} -p {cluster.partition} -n {cluster.n}  -t {cluster.time}"

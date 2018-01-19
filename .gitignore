@@ -1,0 +1,5 @@
+genomes/
+old_pipeline/
+docs/
+pipeline/rules/*.bak
+pipeline/logs/

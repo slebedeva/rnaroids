@@ -1,0 +1,9 @@
+start pipeline like:
+qsub snakecharmer_mod.sh
+
+samtools faidx genome.fa #get chromosome sizes
+
+errors:
+- umi-tools fails due to weird python gzipped file read error - worked around + update umi-tools
+- star index fails because core dumps - fixed (one index managed to finish)
+
