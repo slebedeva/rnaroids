@@ -6,3 +6,10 @@ Downloaded the 45srRNA repeating unit to add into the rRNA database, as it
 was missing
 https://www.ncbi.nlm.nih.gov/nuccore/NR_046235.3
 P.S. do not wget but go to the link and copy fasta sequence to a file 45srRNA.fa
+
+Concatenate the two files together for building an index.
+Final file to use: Homo_sapiens.GRCh38.rRNA.fa
+
+01/21/2018
+clean up two original files and leave only the concatenated file
+

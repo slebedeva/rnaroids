@@ -18,10 +18,10 @@ mkdir -p logs
 # extract out rRNA sequences (defined by gene_biotype:rRNA)
 # add in 45srRNA repeat sequence also
 
-#submit: qsub getrRNA.sh <ensembl.ncRNA.fastq.gz>
+#submit: qsub getrRNA.sh <ensembl.ncRNA.fa.gz> 45S.fa
 
-fa=$1
-rna=$2
+fa=$1 #ensembl ncRNA gene (download from FTP Ensembl)
+rna=$2 #45SRNA sequence (download from NCBI)
 
 pre=${fa%.fa.gz}
 
