@@ -22,8 +22,7 @@ rule kallisto:
     kallisto quant \
       -i {input.idx} \
       -o {params.out_dir} \
-      {input.R1} {input.R2} \
-      -b 100 --rf-stranded \
+      --bias {input.R1} {input.R2} \
       -t {threads}
     """
 

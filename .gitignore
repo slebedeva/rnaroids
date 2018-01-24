@@ -3,3 +3,6 @@ old_pipeline/
 docs/
 pipeline/rules/*.bak
 pipeline/logs/
+dbases/ercc/bowtie_idx/
+dbases/mm10/rRNA/logs/
+pipeline/.snakemake/

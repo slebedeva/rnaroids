@@ -23,6 +23,7 @@
 #$ -V
 #$ -j yes
 ##$ -o snake.log ## because run two snake jobs at the same time
+#$ -o logs/
 #$ -m beas
 #$ -M svetlana.lebedeva@mdc-berlin.de
 #$ -N "snake"
@@ -34,5 +35,5 @@ echo $(date)
 
 snakemake --unlock && ##necessary because a lot of killed snakes
 
-snakemake --jobs 4 --cluster-config cluster_config.json --cluster "qsub -cwd -V -j yes -o {cluster.err} -m beas -M {cluster.account} -pe smp {cluster.n} -l mem_free={cluster.mem_free},h_vmem={cluster.mem_max} -l h_rt={cluster.time} -N {cluster.name}" --snakefile Snakefile --latency-wait 50 --rerun-incomplete --configfile config_rnaseq.yaml
+snakemake --jobs 4 --cluster-config cluster_config.json --cluster "qsub -cwd -V -j yes -o {cluster.err} -m {cluster.m} -M {cluster.account} -pe smp {cluster.n} -l h_vmem={cluster.h_vmem} -l h_rt={cluster.time} -N {cluster.name}" --snakefile Snakefile --latency-wait 50 --rerun-incomplete --configfile config_rnaseq.yaml
 

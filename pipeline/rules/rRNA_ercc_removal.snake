@@ -6,7 +6,8 @@ filtered = "{data}/fastq/filtered/"
 
 # bowtie indexes
 idx_nums = [1, 2, 3, 4, "rev.1", "rev.2"]
-bt_idx_path = DBASES + "/ercc/bowtie_idx/erccrRNA"
+#bt_idx_path = DBASES + "/ercc/bowtie_idx/erccrRNA" #this is bad because we can end up using mouse rRNA for human, etc - let's overwrite the index every time, it is fast
+bt_idx_path = DBASES + "/bowtie_idx/erccrRNA"
 bt_idxs = [(bt_idx_path + ".{}.ebwt".format(x)) for x in idx_nums]
 
 rule bowtie_ercc_rRNA:
@@ -63,11 +64,11 @@ rule ercc_rRNA_idx:
     output:
       bt_idxs
     params:
-      outdir = DBASES + "/ercc/bowtie_idx/erccrRNA", 
+      outdir = DBASES + "/bowtie_idx/erccrRNA", 
       job_name = "bowtieidx",
       memory = "select[mem>4] rusage[mem=4]",
     log: 
-      DBASES + "/ercc/logs/idx.log" 
+      DBASES + "/bowtie_idx/logs/idx.log" 
     message: "indexing ercc's and rRNA"
     shell:
       """

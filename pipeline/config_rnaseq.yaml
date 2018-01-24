@@ -3,7 +3,8 @@
 ## directory for data
 DATA: 
   #"../data"
-  "../data_es"
+  #"../data_es"
+  "../data_test" #test
 
 ## directory for auxillary scripts
 SRC: 
@@ -14,30 +15,25 @@ DBASES:
   "../dbases" 
 
 GENOME:
-  #"/fast/AG_ohler/svetlana/mouse_lncRNA_project/STAR_index/genM14_withERCC.fa"
-  #"../genomes/GRCh38.primary_assembly.genome.fa"
-  # "/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lorenzo_index/gencM15_ERCC.fa"
-  "/fast/AG_Ohler/Lorenzo/Annotation_Indexes/gencM15_ERCC.fa"
+  "/fast/AG_Ohler/Genomes/human/hg19/genomes/v19/GRCh37.p13.genome.fa" #test
+  #"/fast/AG_Ohler/Lorenzo/Annotation_Indexes/gencM15_ERCC.fa" 
 
 GENOME_DIR:
-  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/STAR_index/genM14_withERCC/STAR_2.5.3a/nt65/"
-  #"../genomes/STAR_index/" #for testing
-  "/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lore_index/STAR_genM15_ERCC"
+  "/fast/AG_Ohler/Genomes/human/hg19/STARindex/100bp/" #for testing
+  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lore_index/STAR_genM15_ERCC" #mouse with ercc
+  #"/fast/AG_Ohler/Genomes/human/hg19/STARindex_FANTOM_CAT" #fantom index
 
 TRANSCRIPTS:
-  "/fast/AG_Ohler/Lorenzo/Annotation_Indexes/gencM15_ERCC.gtf"
-  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lorenzo_index/gencM15_ERCC.gtf"
-  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/STAR_index/genM14_withERCC.gtf"
-  #"../genomes/gencode.v27.basic.annotation.gtf"
+  #"/fast/AG_Ohler/Lorenzo/Annotation_Indexes/gencM15_ERCC.gtf"
+  "/fast/AG_Ohler/Genomes/human/hg19/annotation/v19/gencode.v19.annotation.gtf" #test
 
-CHROM_SIZES:
-  "/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lore_index/gencM15_ERCC.fa.fai"
-  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/STAR_index/genM14_withERCC.fa.fai"
-  #"../genomes/GRCh38.primary_assembly.genome.fa.fai" #use samtools faidx genome.fa to generate
+#CHROM_SIZES:
+  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lore_index/gencM15_ERCC.fa.fai"
+  #"../genomes/GRCh38.primary_assembly.genome.fa.fai" #for testing; use samtools faidx genome.fa to generate
 
 RRNA_FA:
-  #"../dbases/hg19/rRNA/Homo_sapiens.GRCh38.rRNA.fa"
-  "../dbases/mm10/rRNA/Mus_musculus.GRCm38.ncrna.rRNA.fa" 
+  "../dbases/hg19/rRNA/Homo_sapiens.GRCh38.rRNA.fa" #test
+  #"../dbases/mm10/rRNA/Mus_musculus.GRCm38.ncrna.rRNA.fa" 
    
 ERCC_FA:
   "../dbases/ercc/ERCC92.fa"
@@ -57,27 +53,27 @@ ERCC_FA:
    # - C
 
 ## first 5p base to keep in fastqs
-#5P: "3"
-5P: "10"
-
+5P: "3" #test
+#5P: "10"
 
 ##threads
-
 THR: "4"
-
 
 ## salmon and kallisto 
 
 TRANSCRIPTS_FA:
-  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/STAR_index/gen_M14_withERCC.transcripts.fa"
-  #"../genomes/gencode.v27.transcripts.fa"
-  "/fast/AG_Ohler/svetlana/mouse_lncRNA_project/kallisto/gencode.vM15.preMRNA.fa"
-
+  #"../genomes/gencode.v27.transcripts.fa" #test
+  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/pri_rsem_norRNA/M15rsem_norRNA.transcripts.fa" # rRNA; no, primary: yes, from RSEM index dir
 
 #SALMON_IDX:
   #"../genomes/salmon_idx/gencode.v27.transcripts.idx"
 
 KALLISTO_IDX:
-  #"../genomes/kallisto_idx/gencode.v27.transcripts.idx"
-  "/fast/AG_Ohler/svetlana/mouse_lncRNA_project/kallisto/gencode.vM15.preMRNA.kall.idx"
+  #"../genomes/kallisto_idx/gencode.v27.transcripts.idx" #test
+  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/kallisto/gencode_lore/M15rsem_norRNA.transcripts.kall.idx"
+  "/fast/AG_Ohler/Genomes/human/hg19/primary_kallisto_index"
+
+RSEM_IDX:
+  #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/pri_rsem_norRNA/M15rsem_norRNA"
+  "/fast/AG_Ohler/Genomes/human/hg19/priRSEMindex/"
 

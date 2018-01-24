@@ -1,0 +1,36 @@
+""" process fastqs for rsem alignment """
+
+
+# bowtie indexes
+#idx_nums = [1, 2, 3, 4, "rev.1", "rev.2"]
+#rsem_idx_path = {RSEM_IDX}
+#rsem_idxs = [(rsem_idx_path + ".{}.ebwt".format(x)) for x in idx_nums]
+
+
+rule pri_rsem:
+  input:
+    R1 = "{data}/fastq/dedup/{sample}_R1_{rep}.fastq.gz",
+    R2 = "{data}/fastq/dedup/{sample}_R2_{rep}.fastq.gz",
+ #   idx = rsem_idxs
+  output:
+    "{data}/pri_rsem/{sample}_{rep}/{sample}_{rep}.genes.results"
+  params:
+    #idx = {RSEM_IDX},
+    out_dir = "{data}/pri_rsem/{sample}_{rep}",
+    job_name = "pri_rsem.{sample}_{rep}",
+  log:
+    "{data}/pri_rsem/logs/alignment/{sample}_{rep}.txt" 
+  threads:
+    4
+  resources: all_threads=4
+  shell:
+    """
+      rsem-calculate-expression \
+      --forward-prob 0 -p {threads} \
+      --no-bam-output --estimate-rspd --paired-end \
+      {input.R1} {input.R2} \
+      "/fast/AG_Ohler/svetlana/mouse_lncRNA_project/pri_rsem_norRNA/M15rsem_norRNA" {params.out_dir}
+    """
+
+
+

@@ -31,3 +31,15 @@ rule make_bigwigs:
 
     rm {input.reverse}.tmp {input.forward}.sort {input.reverse}.sort
     """
+
+
+rule make_chrom_sizes:
+  input:
+    {GENOME},
+  output:
+    {CHROM_SIZES},
+  shell:
+    """
+    samtools faidx {GENOME}
+    """
+
