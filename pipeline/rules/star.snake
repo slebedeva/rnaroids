@@ -1,0 +1,129 @@
+
+""" rules for two pass mapping """
+
+
+starPARS = """ \
+  --outFilterMultimapNmax 10 --outFilterMismatchNmax 10 --outFilterMismatchNoverReadLmax 0.04 \
+  --outSAMmultNmax 1 --outMultimapperOrder Random  --outSAMprimaryFlag AllBestScore \
+  --alignIntronMin 20 --alignIntronMax 1000000 --alignMatesGapMax 1000000 \
+  --alignSJoverhangMin 8  --alignSJDBoverhangMin 1 --sjdbScore 1 \
+  --outFilterType BySJout \
+  --outSAMtype BAM SortedByCoordinate --outSAMmode Full \
+  --outSAMattributes All  --outSAMattrIHstart 0  --outSAMstrandField intronMotif  \
+  --outWigType bedGraph  --outWigNorm RPM \
+  --quantMode GeneCounts --readFilesCommand zcat \
+  """
+starPARS_dedup = """ \
+  --outFilterMultimapNmax 10 --outFilterMismatchNmax 10 --outFilterMismatchNoverReadLmax 0.04 \
+  --outSAMmultNmax 1 --outMultimapperOrder Random  --outSAMprimaryFlag AllBestScore \
+  --alignIntronMin 20 --alignIntronMax 1000000 --alignMatesGapMax 1000000 \
+  --alignSJoverhangMin 8  --alignSJDBoverhangMin 1 --sjdbScore 1 \
+  --outReadsUnmapped Fastx --outFilterType BySJout \
+  --outSAMtype BAM SortedByCoordinate --outSAMmode Full \
+  --outSAMattributes All  --outSAMattrIHstart 0  --outSAMstrandField intronMotif  \
+  """
+
+rule extract_deduped_fastqs:
+    """
+    convert reads back to fastq for second pass mapping
+    read ids will have /1 and /2 appended
+    samtools 1.5
+    """
+    input:
+      bam = "{data}/star/dedup/{sample}_dedup.bam",
+    output:
+      R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
+      R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
+      singles = "{data}/fastq/dedup/{sample}_singletons.fastq.gz",
+    message:
+      "converting deduplicated bam back to fastq"
+    shell:
+      """
+      samtools sort \
+          -n \
+          -@ 3 \
+          {input.bam} \
+        | samtools fastq \
+          -0 {output.singles} \
+          -1 {output.R1} \
+          -2 {output.R2} \
+          -@ 3 -  
+      """
+
+rule dedup_bam:
+    """
+    deduplicate reads
+    umi_tools version 4.4
+    use python3/3.6.1
+    """
+    input:
+      bam = "{data}/star/firstpass/{sample}.bam",
+    output:
+      #bam = protected("{data}/star/dedup/{sample}_dedup.bam"), #why???
+      bam = "{data}/star/dedup/{sample}_dedup.bam",
+    message:
+      "deduplicating {wildcards.sample} bam file"
+    shell:
+      """
+      umi_tools dedup --method="directional" --paired -I {input.bam} -S {output.bam}
+      """
+
+rule star_align:
+    """ map reads to genome/transcriptome using STAR 
+    STAR_2.5.1b
+    """
+    input:
+      R1 = "{data}/fastq/filtered/{sample}_R1_umi_trim_noercc.fastq.gz",
+      R2 = "{data}/fastq/filtered/{sample}_R2_umi_trim_noercc.fastq.gz",
+      genome = GENOME_DIR + "/Genome"
+    output:
+      bam = "{data}/star/firstpass/{sample}.bam",
+      bg1 = "{data}/star/firstpass/{sample}_Signal.Unique.str1.out.bg",
+      bg2 = "{data}/star/firstpass/{sample}_Signal.Unique.str2.out.bg"
+    params:
+      use_sjs =  "yes" if SPLICE_JUNCTS else "no", 
+      splice_junctions = SPLICE_JUNCTS if SPLICE_JUNCTS else "none",
+      job_name = "star_pass_1",
+      tmpbam = "{data}/star/firstpass/{sample}_Aligned.sortedByCoord.out.bam",
+      out = "{data}/star/firstpass/{sample}_",
+    message:
+      "running first pass star alignments "
+    shell:
+      """
+      # use bash to conditionally define --sjdbFileChrStartEnd
+      
+      if [ "{params.use_sjs}" != "no" ]
+      then
+         sjunctions="--sjdbFileChrStartEnd {params.splice_junctions} "
+      else
+         sjunctions=""
+      fi 
+
+      STAR \
+        --genomeDir {GENOME_DIR}  \
+        --runThreadN {THREADS} \
+        --outBAMsortingThreadN {THREADS} \
+        --readFilesIn {input.R1} {input.R2} \
+        --readFilesCommand gunzip -c \
+        --outFileNamePrefix {params.out} \
+        --outFilterMultimapNmax 10 --outFilterMismatchNmax 10 --outFilterMismatchNoverReadLmax 0.04 \
+        --outSAMmultNmax 1 --outMultimapperOrder Random  --outSAMprimaryFlag AllBestScore \
+        --alignIntronMin 20 --alignIntronMax 1000000 --alignMatesGapMax 1000000 \
+        --alignSJoverhangMin 8  --alignSJDBoverhangMin 1 --sjdbScore 1 \
+        --outReadsUnmapped Fastx --outFilterType BySJout \
+        --outSAMtype BAM SortedByCoordinate --outSAMmode Full \
+        --limitSjdbInsertNsj=1500000 \
+        --outSAMattributes All  --outSAMattrIHstart 0  --outSAMstrandField intronMotif \
+        --outWigType bedGraph  --outWigNorm RPM --quantMode GeneCounts \
+        $sjunctions
+
+      # add XS tag for non-spliced alignments using awkful script from STAR 
+      samtools view -h {params.tmpbam} \
+        | awk -v strType=2 -f {SRC}/tagXSstrandedData.awk \
+        | samtools view -bS - > {output.bam}
+      
+      samtools index {output.bam}
+      
+      rm -f {params.tmpbam} ##comment this out if want to troubleshoot
+      """
+

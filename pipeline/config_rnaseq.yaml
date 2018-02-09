@@ -4,7 +4,8 @@
 DATA: 
   #"../data"
   #"../data_es"
-  "../data_test" #test
+  "../data_test_cp" #test
+  
 
 ## directory for auxillary scripts
 SRC: 
@@ -19,7 +20,7 @@ GENOME:
   #"/fast/AG_Ohler/Lorenzo/Annotation_Indexes/gencM15_ERCC.fa" 
 
 GENOME_DIR:
-  "/fast/AG_Ohler/Genomes/human/hg19/STARindex/100bp/" #for testing
+  "/fast/AG_Ohler/Genomes/human/hg19/STARindex/rnaroids" #for testing
   #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lore_index/STAR_genM15_ERCC" #mouse with ercc
   #"/fast/AG_Ohler/Genomes/human/hg19/STARindex_FANTOM_CAT" #fantom index
 
@@ -27,53 +28,73 @@ TRANSCRIPTS:
   #"/fast/AG_Ohler/Lorenzo/Annotation_Indexes/gencM15_ERCC.gtf"
   "/fast/AG_Ohler/Genomes/human/hg19/annotation/v19/gencode.v19.annotation.gtf" #test
 
-#CHROM_SIZES:
+CHROM_SIZES:
   #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/Lore_index/gencM15_ERCC.fa.fai"
   #"../genomes/GRCh38.primary_assembly.genome.fa.fai" #for testing; use samtools faidx genome.fa to generate
+  "/fast/AG_Ohler/Genomes/human/hg19/genomes/v19/GRCh37.p13.genome.fa.fai" #test
 
+## new in Neel
+TRANSCRIPTS_BED:
+  # from ucsc 2017-09-22
+  # "/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v26.primary_assembly.annotation.bed"
+  "/fast/AG_Ohler/Genomes/human/hg19/annotation/v19/gencode.v19.bed" #test
+
+TRANSCRIPTS_BASIC:
+ # from gencode 2017-08-8
+ # no scaffolds only primary chromosomes
+ #"/vol3/home/riemondy/Projects/shared_dbases/annotation/gencode.v26.basic.annotation.gtf"
+ "/fast/AG_Ohler/Genomes/human/hg19/annotation/v19/gencode.v19.annotation.gtf" #test
+   
 RRNA_FA:
   "../dbases/hg19/rRNA/Homo_sapiens.GRCh38.rRNA.fa" #test
   #"../dbases/mm10/rRNA/Mus_musculus.GRCm38.ncrna.rRNA.fa" 
    
 ERCC_FA:
   "../dbases/ercc/ERCC92.fa"
-  
-#SAMPLE:
-   # - total
-   # - lab60
-   # - Total
-   # - eb4su0h
-   # - Chr
-   # - Nuc
-   # - Cyt
 
-#REPLICATE:
-   # - A
-   # - B
-   # - C
+ERCC_GTF:
+  "../dbases/ercc/ERCC92.gtf"
 
-## first 5p base to keep in fastqs
-5P: "3" #test
-#5P: "10"
+# path to STAR SJ.out.tab file
+# Can be single file or wildcard expression matching multiple files
+SPLICE_JUNCTS:
+  "../data_test/star/firstpass/*_SJ.out.tab"
 
-##threads
-THR: "4"
 
-## salmon and kallisto 
+## rsem, salmon and kallisto 
+
+PRI_GTF:
+  "/fast/AG_Ohler/Genomes/human/hg19/priRSEMindex/gencode.v19.pri.gtf" # will be created by the .py script
 
 TRANSCRIPTS_FA:
   #"../genomes/gencode.v27.transcripts.fa" #test
   #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/pri_rsem_norRNA/M15rsem_norRNA.transcripts.fa" # rRNA; no, primary: yes, from RSEM index dir
+  "/fast/AG_Ohler/Genomes/human/hg19/priRSEMindex/gencode.v19.pri.transcripts.fa" #this is made by rsem index from  primary gtf
 
-#SALMON_IDX:
+
+SALMON_IDX:
   #"../genomes/salmon_idx/gencode.v27.transcripts.idx"
+  "/fast/AG_Ohler/Genomes/human/hg19/primary_salmon_index/gencode.v19.pri.transcripts.idx"
 
 KALLISTO_IDX:
   #"../genomes/kallisto_idx/gencode.v27.transcripts.idx" #test
   #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/kallisto/gencode_lore/M15rsem_norRNA.transcripts.kall.idx"
-  "/fast/AG_Ohler/Genomes/human/hg19/primary_kallisto_index"
+  "/fast/AG_Ohler/Genomes/human/hg19/primary_kallisto_index/gencode.v19.pri.transcripts.idx"
 
+## RSEM index prefix
 RSEM_IDX:
   #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/pri_rsem_norRNA/M15rsem_norRNA"
-  "/fast/AG_Ohler/Genomes/human/hg19/priRSEMindex/"
+  "/fast/AG_Ohler/Genomes/human/hg19/priRSEMindex/gencode.v19.pri"
+
+  
+## first 5p base to keep in fastqs
+5P: "3" #test
+#5P: "10"
+
+
+##threads
+THR: "4"
+
+
+
 

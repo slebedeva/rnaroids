@@ -3,27 +3,21 @@
 rule kallisto:
   input:
     idx = {KALLISTO_IDX},
-    R1 = "{data}/fastq/dedup/{sample}_R1_{rep}.fastq.gz",
-    R2 = "{data}/fastq/dedup/{sample}_R2_{rep}.fastq.gz",
+    R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
+    R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
   output:
-    "{data}/kallisto/{sample}_{rep}/abundance.tsv"
+    "{data}/kallisto/{sample}/abundance.tsv"
   params:
-    out_dir = "{data}/kallisto/{sample}_{rep}",
-    job_name = "kallisto.{sample}_{rep}",
-  log:
-    "{data}/kallisto/logs/alignment/{sample}_{rep}.txt" 
+    out_dir = "{data}/kallisto/{sample}",
   message:
     "Fishing for kallistos in {wildcards.sample} "
-  threads:
-    4
-  resources: all_threads=4
   shell:
     """
     kallisto quant \
       -i {input.idx} \
       -o {params.out_dir} \
       --bias {input.R1} {input.R2} \
-      -t {threads}
+      -t {THREADS}
     """
 
 
@@ -32,12 +26,8 @@ rule kallisto_idx:
     {TRANSCRIPTS_FA} 
   output:
     {KALLISTO_IDX}
-  log:
-    path.join(KALLISTO_IDX + "logs") 
   message:
     "building kallisto index "
-  params:
-    job_name = 'kallisto_idx',
   shell:
     """
     kallisto index -i {output} {input}

@@ -1,0 +1,54 @@
+
+""" deduplicate ERCCs and count """ 
+
+# directory shortcuts
+filtered = "{data}/fastq/filtered/"
+
+rule count_erccs:
+    """
+    count ercc alignments 
+    run on all bams at once to produce a single count table
+    subread v1.4.4
+    """
+    input:
+      bam = expand(filtered + "erccs/{sample}_ercc_dedup.bam", 
+              sample = SAMPLE, data = DATA),
+      ercc_gtf = ERCC_GTF
+    output:
+      "{data}/ercc/ercc_counts.txt" 
+    message: "counting erccs "
+    shell:
+      """
+      featureCounts \
+        -a {input.ercc_gtf} \
+        -T {THREADS} \
+        -o {output} \
+        -s 2 \
+        -Q 10 \
+        -p \
+        -B \
+        -C \
+        {input.bam}
+      """
+ 
+rule dedup_ercc:
+    """ 
+    deduplicate ercc containing bams   
+    """   
+    input:
+       filtered + "erccs/{sample}_ercc.bam",
+    output:
+       filtered + "erccs/{sample}_ercc_dedup.bam" 
+    message:
+      "deduplicating erccs from {wildcards.sample} " 
+    shell:
+      """
+      # use updated v4.4
+      umi_tools dedup \
+        --method="directional" \
+        --paired \
+        -v 1 \
+        -I {input} \
+        -S {output}
+      """  
+

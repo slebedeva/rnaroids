@@ -11,17 +11,15 @@ rule extract_UMI:
     """ move UMI sequences to fastq read id 
         UMI-tools v0.3.3 """ 
     input:
-      R1 = raw + "{sample}_R1_{rep}.fastq.gz",
-      R2 = raw + "{sample}_R2_{rep}.fastq.gz"
-      #raw + "{sample}_{read}_{rep}.fastq",
+      R1 = raw + "{sample}_R1.fastq.gz",
+      R2 = raw + "{sample}_R2.fastq.gz"
+      #R1 = raw + "{sample}_" + READ[0] + ".fastq.gz", #there was some python error with this
+      #R2 = raw + "{sample}_" + READ[1] + ".fastq.gz",
     output:
-      #filtered + "{sample}_{read}_{rep}_umi.fastq",
-      R1 = filtered + "{sample}_R1_{rep}_umi.fastq.gz",
-      R2 = filtered + "{sample}_R2_{rep}_umi.fastq.gz"
-    params:
-      job_name = "umi_extract",
-    resources: all_threads = 1
-    log: "{data}/fastq/logs/umi/extract_{sample}.log"
+      R1 = filtered + "{sample}_R1_umi.fastq.gz",
+      R2 = filtered + "{sample}_R2_umi.fastq.gz"
+      #R1 = temp(filtered + "{sample}_" + READ[0] + "_umi.fastq.gz"),
+      #R2 = temp(filtered + "{sample}_" + READ[1] + "_umi.fastq.gz"),
     message: "extracting umis"
     shell:
       """
@@ -32,9 +30,24 @@ rule extract_UMI:
               --stdout={output.R1} \
               --read2-out={output.R2} \
               -v 0 \
-              -L {log}  
       """
 
 
 
       
+rule trim_fqs:
+    """ trim bases from 5' end of reads
+        specify bases to trim in config file
+        fastx_toolkit 0.0.13 """
+    input:
+      filtered + "{sample}_{read}_umi.fastq.gz",
+    output:
+      filtered + "{sample}_{read}_umi_trim.fastq.gz",
+    params:
+      p5 = P5TRIM,
+    message: "trimming fastqs"
+    shell:
+      """
+      gunzip -c {input} \
+        | fastx_trimmer -z -Q33 -f {params.p5} -o {output}
+      """

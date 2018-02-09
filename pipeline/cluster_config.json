@@ -10,39 +10,7 @@
         "name" : "{rule}"
     },
 
-    "kallisto" :
-    {
-
-    },
-    "kallisto_idx" :
-    {
-
-    },
-    "make_bigwigs" :
-    {
-
-    },
-    "bowtie_ercc_rRNA" :
-    {
-
-    },
-    "ercc_rRNA_idx" :
-    {
-
-    },
-    "salmon_align" :
-    {
-
-    },
-    "salmon_idx" :
-    {
-
-    },
-    "star_idx" :
-    {
-
-    },
-    "star_second_pass" :
+    "dedup_bam" :
     {
 
     },
@@ -50,29 +18,42 @@
     {
 
     },
-    "combine_bams" :
+    "star_idx" :
     {
 
     },
-    "dedup_bam" :
+    "star" :
     {
 
     },
-    "star_first_pass" :
+    "salmon" :
     {
 
     },
-    "extract_UMI" :
+    "make_bigwigs" :
     {
 
     },
-    "trim_fqs" :
+    "qc" :
     {
 
     },
-    "pri_rsem" :
+    "ercc_dedup_and_count" :
+    {
+
+    },
+    "rsem" :
     {
        "h_vmem" : "120G",
-       "n" : 1
+       "n" : 1,
+       "time" : "48:00:00"
+    },
+    "rsem_index" :
+    {
+       "time" : "48:00:00"
+    },
+    "kallisto" :
+    {
+
     }
 }

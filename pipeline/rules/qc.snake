@@ -1,0 +1,45 @@
+""" rules for basic QC checks """ 
+
+raw = path.join("{data}", "fastq", "raw_data")
+qc = path.join("{data}", "qc")
+
+rule fastqc:
+  input:
+    #R1 = path.join(raw, "{sample}_" + READ[0] + ".fastq.gz"),
+    #R2 = path.join(raw, "{sample}_" + READ[1] + ".fastq.gz")
+    R1 = path.join(raw, "{sample}_R1.fastq.gz"),
+    R2 = path.join(raw, "{sample}_R2.fastq.gz")
+  output:
+    #path.join(qc, "fastqc", "{sample}_" + READ[0] + "_fastqc/summary.txt"),
+    #path.join(qc, "fastqc", "{sample}_" + READ[1] + "_fastqc/summary.txt")
+    path.join(qc, "fastqc", "{sample}_R1_fastqc.html"),
+    path.join(qc, "fastqc", "{sample}_R2_fastqc.html")
+  params:
+    out_dir = path.join(qc, "fastqc"),
+  message:
+    "fastqc analysis of {wildcards.sample} "
+  shell:
+    """
+    mkdir -p {params.out_dir}
+    fastqc \
+      -t {THREADS} \
+      -f fastq \
+      -o {params.out_dir} \
+      {input.R1} {input.R2}
+    """
+
+rule single_lib_stats:
+  input:
+    bam = "{data}/star/firstpass/{sample}.bam"
+  output:
+    bam_stat = path.join(qc, "rseqc", "{sample}_bam_stat.txt"),
+    expt = path.join(qc, "rseqc", "{sample}_lib_type.txt"),
+    dist = path.join(qc, "rseqc", "{sample}_read_dist.txt"),
+  message:
+    "getting alignment stats "
+  shell:
+    """
+    bam_stat.py -i {input.bam} -q 10 > {output.bam_stat}
+    infer_experiment.py -i {input.bam} -r {TRANSCRIPTS_BED} -q 10 > {output.expt}
+    read_distribution.py -i {input.bam} -r {TRANSCRIPTS_BED} > {output.dist}
+    """

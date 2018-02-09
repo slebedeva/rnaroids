@@ -1,0 +1,79 @@
+
+""" calculate primary expression levels """ 
+
+
+rule rsem:
+    """
+    run RSEM on deduplicated fastqs 
+    RSEM-1.3.0
+    """
+    input:
+      R1 = "{data}/fastq/dedup/{sample}_R1.fastq.gz",
+      R2 = "{data}/fastq/dedup/{sample}_R2.fastq.gz",
+      idx = RSEM_IDX + ".grp",
+    output:
+      path.join("{data}", "rsem", "{sample}", "{sample}.isoforms.results")
+    params:
+      #idx_prefix = path.join(DBASES, "rsem", "primary_transcript_db"),
+      idx_prefix = RSEM_IDX,
+      outname = path.join("{data}", "rsem", "{sample}", "{sample}"),
+    shell:
+      """
+      rsem-calculate-expression \
+        --strandedness reverse \
+        --no-bam-output --estimate-rspd  \
+        -p {THREADS} \
+        --paired-end <(gunzip -c {input.R1}) <(gunzip -c {input.R2}) \
+        {params.idx_prefix} \
+        {params.outname}
+      """
+
+
+rule rsem_index:
+    """
+    Prepare indexes for RSEM 
+    RSEM-1.3.0
+    """
+    input:
+      #gtf = path.join(DBASES, "primary_transcript_db.gtf"),
+      gtf = PRI_GTF,
+      fasta = GENOME
+    output:
+      #path.join(DBASES, "rsem", "primary_transcript_db.transcripts.fa"),
+      #path.join(DBASES, "rsem", "primary_transcript_db.seq"),
+      #path.join(DBASES, "rsem", "primary_transcript_db.grp"),
+      RSEM_IDX + ".transcripts.fa",
+      #TRANSCRIPTS_FA 
+      RSEM_IDX + ".grp",
+    #params:
+      #outname = path.join(DBASES, "rsem", "primary_transcript_db"),
+      #outname = RSEM_IDX,
+    shell:
+      """
+      rsem-prepare-reference \
+       --gtf {input.gtf} \
+       --bowtie \
+       -p {THREADS} \
+       {input.fasta} \
+       {RSEM_IDX}
+      """
+
+rule primary_transcript_gtf:
+    """
+    Append primary transcript records to GTF annotations
+    src/add_primary_transcripts.py
+    """
+    input:
+      TRANSCRIPTS_BASIC
+    output:
+      PRI_GTF
+      #path.join(DBASES, "primary_transcript_db.gtf")  #replace because don't want them hardcoded
+    shell:
+      """
+      python3 {SRC}/add_primary_transcripts.py \
+        -i {input} \
+        -r "transcript" \
+        -a "transcript_id" > {output}
+      """
+
+

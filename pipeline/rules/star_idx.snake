@@ -3,15 +3,9 @@
 
 rule star_idx:
   input:
-    {GENOME} 
+    GENOME
   output:
-    "{GENOME_DIR}/Genome"
-  params:
-    job_name = "star_idx",
-  log:
-    "{GENOME_DIR}/logs/"
-  threads:
-    4 
+    path.join(GENOME_DIR, "Genome")
   message:
     "building star index "
   shell:
@@ -19,7 +13,8 @@ rule star_idx:
     STAR --runMode genomeGenerate \
       --genomeDir {GENOME_DIR}  \
       --genomeFastaFiles {GENOME} \
-      --runThreadN {threads} \
+      --runThreadN {THREADS} \
+      --outFileNamePrefix {GENOME_DIR} \
       --sjdbGTFfile {TRANSCRIPTS} \
     """
 
