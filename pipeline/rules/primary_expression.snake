@@ -20,6 +20,7 @@ rule rsem:
     shell:
       """
       rsem-calculate-expression \
+        --bowtie-path "~/.guix-profile/bin/bowtie --large-index" \
         --strandedness reverse \
         --no-bam-output --estimate-rspd  \
         -p {THREADS} \

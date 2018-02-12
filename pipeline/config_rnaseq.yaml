@@ -4,7 +4,7 @@
 DATA: 
   #"../data"
   #"../data_es"
-  "../data_test_cp" #test
+  "../data_test" #test
   
 
 ## directory for auxillary scripts
@@ -69,22 +69,22 @@ PRI_GTF:
 TRANSCRIPTS_FA:
   #"../genomes/gencode.v27.transcripts.fa" #test
   #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/pri_rsem_norRNA/M15rsem_norRNA.transcripts.fa" # rRNA; no, primary: yes, from RSEM index dir
-  "/fast/AG_Ohler/Genomes/human/hg19/priRSEMindex/gencode.v19.pri.transcripts.fa" #this is made by rsem index from  primary gtf
+  "/fast/AG_Ohler/Genomes/human/hg19/priRSEMindex/gencode_v19_pri.transcripts.fa" #this is made by rsem index from  primary gtf
 
 
 SALMON_IDX:
   #"../genomes/salmon_idx/gencode.v27.transcripts.idx"
-  "/fast/AG_Ohler/Genomes/human/hg19/primary_salmon_index/gencode.v19.pri.transcripts.idx"
+  "/fast/AG_Ohler/Genomes/human/hg19/primary_salmon_index/gencode_v19_pri.transcripts.idx"
 
 KALLISTO_IDX:
   #"../genomes/kallisto_idx/gencode.v27.transcripts.idx" #test
   #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/kallisto/gencode_lore/M15rsem_norRNA.transcripts.kall.idx"
-  "/fast/AG_Ohler/Genomes/human/hg19/primary_kallisto_index/gencode.v19.pri.transcripts.idx"
+  "/fast/AG_Ohler/Genomes/human/hg19/primary_kallisto_index/gencode_v19_pri.transcripts.idx"
 
 ## RSEM index prefix
 RSEM_IDX:
   #"/fast/AG_Ohler/svetlana/mouse_lncRNA_project/pri_rsem_norRNA/M15rsem_norRNA"
-  "/fast/AG_Ohler/Genomes/human/hg19/priRSEMindex/gencode.v19.pri"
+  "/fast/AG_Ohler/Genomes/human/hg19/priRSEMindex/gencode_v19_pri"
 
   
 ## first 5p base to keep in fastqs

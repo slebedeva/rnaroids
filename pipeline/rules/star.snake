@@ -23,6 +23,40 @@ starPARS_dedup = """ \
   --outSAMattributes All  --outSAMattrIHstart 0  --outSAMstrandField intronMotif  \
   """
 
+#rule make_dedup_bigwigs:
+#    """
+#     produce bigwigs from deduplicated bam for visualisation
+#    """
+#    input:
+#      bam = "{data}/star/dedup/{sample}_dedup.bam",
+#    output:
+#      for = "{data}/star/dedup/{sample}_dedup_for.bw",
+#      rev = "{data}/star/dedup/{sample}_dedup_rev.bw",
+#      rev_neg = "{data}/star/dedup/{sample}_dedup_rev_neg.bw",
+#    shell:
+#      """
+#      samtools sort {input.bam} -o {sample}_sorted.bam &&
+#      TOTAL_MAPPED=$( samtools flagstat ${sample}_sorted.bam | head -n1| cut -f1 -d" ") &&
+#      SCALE=$(echo "1000000/$TOTAL_MAPPED" | bc -l) &&
+#      genomeCoverageBed -bg -split -scale ${SCALE} -ibam {sample}_sorted.bam -strand + -g $chr > {sample}_for.bedgraph &&
+#      genomeCoverageBed -bg -split -scale ${SCALE} -ibam {sample}_sorted.bam -strand - -g $chr > {sample}_rev.bedgraph &&
+#
+#      bedSort {sample}_for.bedgraph {sample}_for.bedgraph.sort &&
+#      bedSort {sample}_rev.bedgraph {sample}_rev.bedgraph.sort &&
+#
+#      bedGraphToBigWig {sample}_for.bedgraph.sort {CHROM_SIZES} {output.for} &&
+#      bedGraphToBigWig {sample}_rev.bedgraph.sort {CHROM_SIZES} {output.rev} &&
+#
+#      awk '{{$4=$4*-1; print}}' {sample}_rev.bedgraph.sort > {sample}.tmp &&
+#  
+#      bedGraphToBigWig {sample}.tmp {CHROM_SIZES} {output.rev_neg} &&
+#
+#      rm {sample}.tmp {sample}_for.bedgraph.sort {sample}_rev.bedgraph.sort {sample}_for.bedgraph {sample}_rev.bedgraph {sample}_sorted.bam
+#
+#
+#      """
+#
+
 rule extract_deduped_fastqs:
     """
     convert reads back to fastq for second pass mapping
@@ -59,7 +93,7 @@ rule dedup_bam:
     input:
       bam = "{data}/star/firstpass/{sample}.bam",
     output:
-      #bam = protected("{data}/star/dedup/{sample}_dedup.bam"), #why???
+      #bam = protected("{data}/star/dedup/{sample}_dedup.bam"), #why protect???
       bam = "{data}/star/dedup/{sample}_dedup.bam",
     message:
       "deduplicating {wildcards.sample} bam file"

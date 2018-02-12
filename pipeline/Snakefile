@@ -82,12 +82,15 @@ rule all:
     #data=DATA, sample = SAMPLE),
     
     #### kallisto alignments ####
-    #expand("{data}/kallisto/{sample}/abundance.tsv",
-    #data=DATA, sample = SAMPLE),
+    expand("{data}/kallisto/{sample}/abundance.tsv",
+    data=DATA, sample = SAMPLE),
 
     #### bigwigs ####
     expand("{data}/bigwigs/{sample}_{orient}.bw",
     data=DATA, sample = SAMPLE, orient = ["fwd", "rev", "rev_neg"]),
+    #expand("{data}/star/dedup/{sample}_dedup_{orient}.bw",
+    #data=DATA, sample = SAMPLE, orient = ["for", "rev", "rev_neg"]),
+
     
     ## new in Neel
     
@@ -115,7 +118,7 @@ include: "rules/ercc_dedup_and_count.snake"
 #include: "rules/primary_expression.snake"
 
 ## not in Neels
-#include: "rules/kallisto.snake"    
+include: "rules/kallisto.snake"    
 
 
 
