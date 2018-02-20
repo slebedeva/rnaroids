@@ -14,8 +14,8 @@ This pipeline is being modified to run on SGE. **Work in progress!!!**
 
 name your original paired end fastq files like:
 
-SampleName_R1_Rep1.fastq.gz
-SampleName_R2_Rep1.fastq.gz
+SampleName_R1.fastq.gz
+SampleName_R2.fastq.gz
 
 (This may change in the future).
 
@@ -60,16 +60,6 @@ RRNA_FA:
 ERCC_FA:
   "../dbases/ercc/ERCC92.fa" # don't need to change this
   
-#SAMPLE: #put here all the names of samples that you have
-   # - Total
-   # - Nuc
-   # - Cyt
-
-#REPLICATE: #name your replicates here. make sure that all the samples listed above have all the replicates listed below. if not, run the pipeline separately for samples with missing replicates
-# in this case, our samples are: Total_A, Total_B, Nuc_A, Nuc_B, Cyt_A, Cyt_B
-   # - A
-   # - B
-
 ## first 5p base to keep in fastqs # how many bases to trim from the 5' end? in case you have sequence quality issues
 #5P: "3"
 #5P: "10"
